@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validate — Idea Demand Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080808; --surface: #101010; --border: #1c1c1c;
+  --text: #ede9e3; --muted: #555; --dim: #333;
+  --green: #00d98b; --yellow: #f0c040; --red: #ff5050; --blue: #5b9cf6;
+  --font: 'Playfair Display', Georgia, serif;
+  --mono: 'DM Mono', 'Courier New', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; line-height: 1.6; }
+body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:0.3;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+
+.shell { max-width: 860px; margin: 0 auto; padding: 0 32px; }
+
+/* HEADER */
+header { padding: 32px 0 28px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.wordmark { font-family:var(--font); font-size:14px; font-weight:900; letter-spacing:0.3em; text-transform:uppercase; }
+.wordmark span { color: var(--green); }
+
+/* TABS */
+.tabs { display:flex; border-bottom: 1px solid var(--border); }
+.tab { font-family:var(--mono); font-size:11px; letter-spacing:0.15em; text-transform:uppercase; padding:16px 28px; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; transition:all 0.2s; margin-bottom:-1px; }
+.tab:hover { color: var(--text); }
+.tab.active { color:var(--text); border-bottom-color: var(--green); }
+
+/* PANELS */
+.panel { display:none; padding: 52px 0 80px; }
+.panel.active { display:block; }
+
+/* SHARED */
+.section-label { font-family:var(--mono); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:0.2em; color:var(--green); text-transform:uppercase; margin-bottom:18px; }
+.field-input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:3px; color:var(--text); font-family:var(--mono); font-size:13px; padding:12px 16px; outline:none; transition:border-color 0.2s; }
+.field-input::placeholder { color:var(--dim); }
+.field-input:focus { border-color:#2a2a2a; }
+.status { font-family:var(--mono); font-size:11px; white-space:nowrap; }
+.status.ok { color:var(--green); } .status.no { color:var(--muted); }
+.field-note { font-family:var(--mono); font-size:11px; color:var(--dim); margin-top:8px; line-height:1.6; }
+.body-text { font-family:Georgia,serif; font-size:15px; line-height:1.8; color:#999; }
+
+/* SETTINGS */
+.settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px; }
+.field-row { display:flex; gap:10px; align-items:center; }
+.field-row .field-input { flex:1; }
+.btn-save { background:transparent; border:1px solid var(--border); color:var(--muted); font-family:var(--mono); font-size:11px; letter-spacing:0.15em; text-transform:uppercase; padding:12px 20px; border-radius:3px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.btn-save:hover { border-color:#2a2a2a; color:var(--text); }
+
+/* VALIDATE PANEL */
+.hero-headline { font-family:var(--font); font-size:clamp(36px,5vw,58px); font-weight:900; line-height:1.02; letter-spacing:-0.025em; margin-bottom:16px; }
+.hero-headline em { font-style:italic; color:var(--muted); }
+.hero-sub { font-family:var(--mono); font-size:13px; color:var(--muted); line-height:1.8; max-width:500px; margin-bottom:40px; }
+.idea-textarea { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:3px; color:var(--text); font-family:var(--font); font-size:17px; line-height:1.65; padding:22px 26px; resize:none; outline:none; transition:border-color 0.2s; min-height:110px; margin-bottom:18px; }
+.idea-textarea::placeholder { color:var(--dim); font-style:italic; }
+.idea-textarea:focus { border-color:#252525; }
+.input-footer { display:flex; align-items:center; justify-content:space-between; }
+.char-hint { font-family:var(--mono); font-size:11px; color:var(--dim); }
+.btn-primary { background:var(--text); color:var(--bg); border:none; border-radius:3px; font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:0.2em; text-transform:uppercase; padding:15px 40px; cursor:pointer; transition:opacity 0.2s,transform 0.1s; }
+.btn-primary:hover:not(:disabled) { opacity:0.88; transform:translateY(-1px); }
+.btn-primary:disabled { opacity:0.25; cursor:not-allowed; transform:none; }
+.btn-secondary { background:transparent; border:1px solid var(--border); color:var(--muted); font-family:var(--mono); font-size:11px; letter-spacing:0.15em; text-transform:uppercase; padding:12px 26px; border-radius:3px; cursor:pointer; transition:all 0.2s; }
+.btn-secondary:hover { border-color:#252525; color:var(--text); }
+
+/* LOADING */
+.loading-section { padding:48px 0; display:none; }
+.loading-section.active { display:block; }
+.loading-title { font-family:var(--mono); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:24px; }
+.pulse-dot { display:inline-block; width:6px; height:6px; background:var(--green); border-radius:50%; margin-left:8px; animation:pulse 1.2s ease-in-out infinite; vertical-align:middle; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.7);} }
+.progress-log { border-left:1px solid var(--border); padding-left:24px; }
+.log-line { font-family:var(--mono); font-size:12px; color:var(--dim); padding:8px 0; opacity:0; transform:translateX(-6px); animation:logIn 0.35s ease forwards; line-height:1.5; }
+.log-line.latest { color:#777; }
+.log-line::before { content:'→ '; color:var(--dim); }
+.log-line.latest::before { color:var(--green); }
+@keyframes logIn { to { opacity:1; transform:translateX(0); } }
+
+/* ERROR */
+.error-block { padding:24px 0; display:none; }
+.error-block.active { display:block; }
+.error-msg { font-family:var(--mono); font-size:13px; color:var(--red); border-left:2px solid var(--red); padding-left:20px; line-height:1.7; }
+
+/* RESULTS */
+.results-section { padding:48px 0 0; display:none; }
+.results-section.active { display:block; }
+.verdict-block { border:1px solid var(--border); border-radius:4px; padding:30px 34px; margin-bottom:32px; display:grid; grid-template-columns:auto 1fr; gap:32px; align-items:start; }
+.verdict-left { text-align:center; }
+.verdict-icon { font-size:34px; line-height:1; display:block; margin-bottom:5px; }
+.verdict-word { font-family:var(--font); font-size:12px; font-weight:900; letter-spacing:0.2em; text-transform:uppercase; }
+.verdict-reason { font-family:Georgia,serif; font-size:15px; line-height:1.8; color:#999; padding-top:3px; }
+.metrics-row { display:flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:32px; }
+.metric-cell { flex:1; padding:20px 24px; border-right:1px solid var(--border); }
+.metric-cell:last-child { border-right:none; }
+.metric-label { font-family:var(--mono); font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.metric-value { font-family:var(--font); font-size:22px; font-weight:700; line-height:1; margin-bottom:5px; }
+.metric-detail { font-family:var(--mono); font-size:11px; color:var(--muted); line-height:1.5; }
+.result-section { padding:26px 0; border-top:1px solid var(--border); }
+.rs-label { font-family:var(--mono); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+.phrase-list { list-style:none; }
+.phrase-item { font-family:var(--mono); font-size:13px; color:#777; padding:10px 0; border-bottom:1px solid #141414; line-height:1.6; }
+.phrase-item:last-child { border-bottom:none; }
+.phrase-item::before { content:'" '; color:var(--dim); font-size:15px; }
+.phrase-item::after { content:' "'; color:var(--dim); font-size:15px; }
+.gap-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.gap-card { background:var(--surface); border:1px solid var(--border); border-radius:3px; padding:16px 20px; }
+.gap-card-label { font-family:var(--mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.gap-card-text { font-family:Georgia,serif; font-size:14px; color:#777; line-height:1.7; }
+.angle-card { background:var(--surface); border:1px solid var(--border); border-radius:3px; padding:18px 22px; margin-bottom:10px; transition:border-color 0.2s; }
+.angle-card:hover { border-color:#252525; }
+.angle-num { font-family:var(--mono); font-size:10px; color:var(--dim); letter-spacing:0.1em; margin-bottom:6px; }
+.angle-title { font-family:var(--font); font-size:17px; font-weight:700; color:var(--text); margin-bottom:6px; line-height:1.3; }
+.angle-reason { font-family:Georgia,serif; font-size:14px; color:#666; line-height:1.65; }
+.search-tags { display:flex; flex-wrap:wrap; gap:8px; }
+.search-tag { font-family:var(--mono); font-size:10px; color:var(--dim); background:var(--surface); border:1px solid var(--border); border-radius:2px; padding:4px 10px; }
+.result-actions { display:flex; gap:12px; align-items:center; margin-top:36px; padding-top:28px; border-top:1px solid var(--border); }
+
+/* STRATEGIST PANEL */
+.strat-stages { display:flex; gap:0; border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:36px; }
+.strat-stage { flex:1; padding:16px 20px; cursor:pointer; border-right:1px solid var(--border); transition:background 0.15s; position:relative; }
+.strat-stage:last-child { border-right:none; }
+.strat-stage:hover { background:var(--surface); }
+.strat-stage.active { background:var(--surface); }
+.strat-stage.done::after { content:'✓'; position:absolute; top:14px; right:14px; font-family:var(--mono); font-size:11px; color:var(--green); }
+.stage-num { font-family:var(--mono); font-size:10px; color:var(--dim); letter-spacing:0.1em; margin-bottom:5px; }
+.stage-name { font-family:var(--font); font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.stage-desc { font-family:var(--mono); font-size:10px; color:var(--muted); line-height:1.5; }
+.strat-no-session { text-align:center; padding:60px 0; }
+.strat-no-session p { font-family:var(--mono); font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+/* CHAT */
+.chat-area { display:none; }
+.chat-area.active { display:block; }
+.chat-context-bar { background:var(--surface); border:1px solid var(--border); border-radius:3px; padding:12px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; }
+.chat-context-idea { font-family:var(--font); font-size:14px; color:#999; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
+.chat-context-verdict { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; padding:3px 10px; border-radius:2px; }
+.chat-context-verdict.build { color:var(--green); background:rgba(0,217,139,0.08); }
+.chat-context-verdict.refine { color:var(--yellow); background:rgba(240,192,64,0.08); }
+.chat-context-verdict.drop { color:var(--red); background:rgba(255,80,80,0.08); }
+.chat-messages { display:flex; flex-direction:column; gap:14px; margin-bottom:20px; max-height:500px; overflow-y:auto; padding-right:4px; }
+.chat-messages::-webkit-scrollbar { width:3px; }
+.chat-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.chat-msg { display:flex; }
+.chat-msg.user { flex-direction:row-reverse; }
+.chat-bubble { font-family:Georgia,serif; font-size:15px; line-height:1.75; padding:14px 18px; border-radius:4px; max-width:82%; }
+.chat-msg.assistant .chat-bubble { background:var(--surface); border:1px solid var(--border); color:#bbb; border-radius:4px 4px 4px 0; }
+.chat-msg.user .chat-bubble { background:#161616; border:1px solid #222; color:var(--text); border-radius:4px 4px 0 4px; }
+.chat-bubble p { margin-bottom:10px; } .chat-bubble p:last-child { margin-bottom:0; }
+.chat-bubble strong { color:var(--text); }
+.chat-bubble.thinking { color:var(--muted); font-style:italic; font-size:13px; font-family:var(--mono); }
+.chat-input-row { display:flex; gap:10px; align-items:flex-end; border:1px solid var(--border); border-radius:4px; padding:4px 4px 4px 16px; background:var(--surface); transition:border-color 0.2s; }
+.chat-input-row:focus-within { border-color:#252525; }
+.chat-textarea { flex:1; background:transparent; border:none; color:var(--text); font-family:Georgia,serif; font-size:15px; line-height:1.6; padding:10px 0; resize:none; outline:none; max-height:120px; overflow-y:auto; }
+.chat-textarea::placeholder { color:var(--dim); }
+.chat-send { background:var(--text); color:var(--bg); border:none; border-radius:3px; width:34px; height:34px; font-size:15px; cursor:pointer; transition:opacity 0.2s; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-bottom:2px; }
+.chat-send:hover:not(:disabled) { opacity:0.85; }
+.chat-send:disabled { opacity:0.25; cursor:not-allowed; }
+.stage-actions { display:flex; gap:12px; margin-top:20px; }
+
+/* OBJECTIONS */
+.objections-area { display:none; }
+.objections-area.active { display:block; }
+.objection-list { list-style:none; margin-top:4px; }
+.objection-item { font-family:Georgia,serif; font-size:14px; color:#888; padding:11px 0; border-bottom:1px solid #141414; line-height:1.65; padding-left:18px; position:relative; }
+.objection-item::before { content:'—'; position:absolute; left:0; color:var(--dim); }
+.objection-item:last-child { border-bottom:none; }
+
+/* VALUE STACK */
+.value-stack-area { display:none; }
+.value-stack-area.active { display:block; }
+.offer-card { border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:12px; }
+.offer-card-header { padding:16px 22px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.offer-card-objection { font-family:var(--mono); font-size:11px; color:var(--muted); }
+.offer-card-body { padding:18px 22px; }
+.offer-bonus-name { font-family:var(--font); font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.offer-bonus-desc { font-family:Georgia,serif; font-size:14px; color:#777; line-height:1.65; }
+.offer-summary { background:var(--surface); border:1px solid var(--green); border-radius:4px; padding:28px 32px; margin-top:28px; }
+.offer-summary-title { font-family:var(--font); font-size:22px; font-weight:900; color:var(--text); margin-bottom:16px; }
+.offer-summary-body { font-family:Georgia,serif; font-size:15px; color:#999; line-height:1.8; }
+
+/* HISTORY PANEL */
+.history-empty { text-align:center; padding:60px 0; }
+.history-empty p { font-family:var(--mono); font-size:13px; color:var(--muted); }
+.history-list { display:flex; flex-direction:column; gap:0; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+.history-entry { padding:20px 24px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; display:grid; grid-template-columns:1fr auto auto; gap:16px; align-items:center; }
+.history-entry:last-child { border-bottom:none; }
+.history-entry:hover { background:var(--surface); }
+.history-entry.active { background:var(--surface); }
+.he-idea { font-family:var(--font); font-size:15px; color:var(--text); margin-bottom:4px; }
+.he-date { font-family:var(--mono); font-size:10px; color:var(--muted); }
+.he-verdict { font-family:var(--mono); font-size:10px; letter-spacing:0.08em; padding:3px 10px; border-radius:2px; white-space:nowrap; }
+.he-verdict.build { color:var(--green); background:rgba(0,217,139,0.08); }
+.he-verdict.refine { color:var(--yellow); background:rgba(240,192,64,0.08); }
+.he-verdict.drop { color:var(--red); background:rgba(255,80,80,0.08); }
+.he-del { font-family:var(--mono); font-size:11px; color:var(--dim); cursor:pointer; padding:4px 8px; border-radius:2px; transition:color 0.15s; }
+.he-del:hover { color:var(--red); }
+.he-stages { display:flex; gap:6px; margin-top:6px; }
+.he-stage-dot { font-family:var(--mono); font-size:9px; color:var(--dim); background:#0e0e0e; border:1px solid var(--border); border-radius:2px; padding:2px 7px; letter-spacing:0.05em; }
+.he-stage-dot.done { color:var(--green); border-color:rgba(0,217,139,0.2); background:rgba(0,217,139,0.05); }
+
+@media (max-width:600px) {
+  .shell { padding:0 18px; }
+  .settings-grid { grid-template-columns:1fr; }
+  .verdict-block { grid-template-columns:1fr; gap:16px; }
+  .metrics-row { flex-direction:column; }
+  .metric-cell { border-right:none; border-bottom:1px solid var(--border); }
+  .metric-cell:last-child { border-bottom:none; }
+  .gap-grid { grid-template-columns:1fr; }
+  .strat-stages { flex-direction:column; }
+  .strat-stage { border-right:none; border-bottom:1px solid var(--border); }
+  .history-entry { grid-template-columns:1fr auto; }
+  .he-del { grid-column:2; grid-row:1; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="wordmark">VALID<span>·</span>ATE</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('validate')">Validate</div>
+    <div class="tab" onclick="switchTab('strategist')">Strategist</div>
+    <div class="tab" onclick="switchTab('history')">History</div>
+    <div class="tab" onclick="switchTab('settings')">Settings</div>
+  </div>
+
+  <!-- ══ VALIDATE PANEL ══ -->
+  <div class="panel active" id="panel-validate">
+    <div class="eyebrow">Before you build anything</div>
+    <h1 class="hero-headline">Is anyone <em>starving</em><br>for your idea?</h1>
+    <p class="hero-sub">Enter your digital product idea. The tool searches Reddit, Google, and the web in real time — then tells you if real demand exists.</p>
+
+    <textarea class="idea-textarea" id="ideaInput" rows="4" placeholder="Describe your digital product idea in detail. E.g. 'A budgeting course for Nigerian freelancers in their 20s who earn inconsistent income and struggle to save...'" spellcheck="false"></textarea>
+    <div class="input-footer">
+      <span class="char-hint">Be specific — the more detail, the sharper the analysis</span>
+      <button class="btn-primary" id="validateBtn" onclick="runValidation()">Validate Idea →</button>
+    </div>
+
+    <div class="loading-section" id="loadingSection">
+      <div class="loading-title">Searching the web <span class="pulse-dot"></span></div>
+      <div class="progress-log" id="progressLog"></div>
+    </div>
+
+    <div class="error-block" id="errorBlock"><div class="error-msg" id="errorMsg"></div></div>
+
+    <div class="results-section" id="resultsSection">
+      <div class="verdict-block" id="verdictBlock">
+        <div class="verdict-left">
+          <span class="verdict-icon" id="verdictIcon"></span>
+          <div class="verdict-word" id="verdictWord"></div>
+        </div>
+        <div class="verdict-reason" id="verdictReason"></div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-label">Pain Level</div>
+          <div class="metric-value" id="painValue"></div>
+          <div class="metric-detail" id="painDetail"></div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-label">Demand Recency</div>
+          <div class="metric-value" id="recencyValue"></div>
+          <div class="metric-detail" id="recencyDetail"></div>
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="rs-label">Pain Summary</div>
+        <p class="body-text" id="painSummary"></p>
+      </div>
+      <div class="result-section">
+        <div class="rs-label">What People Are Actually Saying</div>
+        <ul class="phrase-list" id="phraseList"></ul>
+      </div>
+      <div class="result-section">
+        <div class="rs-label">Gap Analysis</div>
+        <div class="gap-grid">
+          <div class="gap-card"><div class="gap-card-label">What Exists</div><div class="gap-card-text" id="existingSolutions"></div></div>
+          <div class="gap-card"><div class="gap-card-label">The Gap</div><div class="gap-card-text" id="gapText"></div></div>
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="rs-label">Suggested Angles</div>
+        <div id="anglesList"></div>
+      </div>
+      <div class="result-section">
+        <div class="rs-label">Searches Performed</div>
+        <div class="search-tags" id="searchTags"></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" onclick="goToStrategist()">Continue to Strategist →</button>
+        <button class="btn-secondary" onclick="resetValidation()">Start Over</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STRATEGIST PANEL ══ -->
+  <div class="panel" id="panel-strategist">
+    <div id="stratNoSession" class="strat-no-session">
+      <p>Validate an idea first, then come here to refine it into an irresistible offer.</p>
+      <button class="btn-secondary" onclick="switchTab('validate')">← Go Validate an Idea</button>
+    </div>
+
+    <div id="stratSession" style="display:none;">
+      <div class="eyebrow">Strategist</div>
+      <div class="strat-stages">
+        <div class="strat-stage active" id="stage-tab-refine" onclick="switchStage('refine')">
+          <div class="stage-num">01</div>
+          <div class="stage-name">Refine</div>
+          <div class="stage-desc">Sharpen the idea and angle</div>
+        </div>
+        <div class="strat-stage" id="stage-tab-objections" onclick="switchStage('objections')">
+          <div class="stage-num">02</div>
+          <div class="stage-name">Objections</div>
+          <div class="stage-desc">Every reason they'd say no</div>
+        </div>
+        <div class="strat-stage" id="stage-tab-valuestack" onclick="switchStage('valuestack')">
+          <div class="stage-num">03</div>
+          <div class="stage-name">Value Stack</div>
+          <div class="stage-desc">Turn objections into bonuses</div>
+        </div>
+      </div>
+
+      <!-- REFINE STAGE -->
+      <div class="chat-area active" id="stage-refine">
+        <div class="chat-context-bar">
+          <span class="chat-context-idea" id="chatContextIdea"></span>
+          <span class="chat-context-verdict" id="chatContextVerdict"></span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-msg assistant">
+            <div class="chat-bubble">I've read your validation report. Let's refine your idea into something sharper. Ask me anything — which angle to pursue, who the exact buyer is, how to position it, what to name it. What do you want to figure out first?</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <textarea class="chat-textarea" id="chatInput" rows="1" placeholder="Ask anything about your idea..." onkeydown="handleChatKey(event)"></textarea>
+          <button class="chat-send" id="chatSendBtn" onclick="sendChat()">↑</button>
+        </div>
+        <div class="stage-actions">
+          <button class="btn-primary" onclick="switchStage('objections')">Next: Find Objections →</button>
+        </div>
+      </div>
+
+      <!-- OBJECTIONS STAGE -->
+      <div class="objections-area" id="stage-objections">
+        <div id="objectionsEmpty">
+          <p class="body-text" style="margin-bottom:24px;">The tool will research every possible reason your audience might say no — price, trust, timing, alternatives, doubts, fears. Nothing missed.</p>
+          <button class="btn-primary" id="objBtn" onclick="runObjections()">Find All Objections →</button>
+          <div class="loading-section" id="objLoadingSection" style="margin-top:24px;">
+            <div class="loading-title">Researching objections <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="objProgressLog"></div>
+          </div>
+        </div>
+        <div id="objectionsList" style="display:none;">
+          <div class="rs-label" style="margin-bottom:16px;">Every reason they might say no</div>
+          <ul class="objection-list" id="objectionItems"></ul>
+          <div class="stage-actions" style="margin-top:28px;">
+            <button class="btn-primary" onclick="switchStage('valuestack')">Next: Build Value Stack →</button>
+            <button class="btn-secondary" onclick="rerunObjections()">Re-run</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VALUE STACK STAGE -->
+      <div class="value-stack-area" id="stage-valuestack">
+        <div id="valueStackEmpty">
+          <p class="body-text" style="margin-bottom:24px;">Every objection becomes a bonus. The tool builds your complete offer — a value stack so compelling your audience can't say no.</p>
+          <button class="btn-primary" id="vsBtn" onclick="runValueStack()" disabled>Build Value Stack →</button>
+          <p class="field-note" id="vsNote" style="margin-top:10px;">Run the Objections stage first.</p>
+          <div class="loading-section" id="vsLoadingSection" style="margin-top:24px;">
+            <div class="loading-title">Building your offer <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="vsProgressLog"></div>
+          </div>
+        </div>
+        <div id="valueStackResult" style="display:none;">
+          <div class="rs-label" style="margin-bottom:16px;">Your complete offer</div>
+          <div id="offerCards"></div>
+          <div class="offer-summary" id="offerSummary" style="display:none;">
+            <div class="offer-summary-title" id="offerSummaryTitle"></div>
+            <div class="offer-summary-body" id="offerSummaryBody"></div>
+          </div>
+          <div class="stage-actions" style="margin-top:28px;">
+            <button class="btn-secondary" onclick="rerunValueStack()">Re-build</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ HISTORY PANEL ══ -->
+  <div class="panel" id="panel-history">
+    <div class="eyebrow">Past Validations</div>
+    <div id="historyEmpty" class="history-empty" style="display:none;">
+      <p>No validations yet. Go validate your first idea.</p>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- ══ SETTINGS PANEL ══ -->
+  <div class="panel" id="panel-settings">
+    <div class="eyebrow">Settings</div>
+    <div class="settings-grid">
+      <div>
+        <div class="section-label">Anthropic API Key</div>
+        <div class="field-row" style="margin-bottom:8px;">
+          <input type="password" class="field-input" id="anthropicKey" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+          <span class="status no" id="anthropicStatus">Not saved</span>
+        </div>
+        <p class="field-note">Powers the validation and strategist AI.</p>
+      </div>
+      <div>
+        <div class="section-label">Supabase (Permanent Storage)</div>
+        <input type="text" class="field-input" id="supabaseUrl" placeholder="https://xxxxx.supabase.co" autocomplete="off" spellcheck="false" style="margin-bottom:8px;">
+        <div class="field-row" style="margin-bottom:8px;">
+          <input type="password" class="field-input" id="supabaseKey" placeholder="sb_publishable_..." autocomplete="off" spellcheck="false">
+          <span class="status no" id="supabaseStatus">Not saved</span>
+        </div>
+        <p class="field-note">Saves your history permanently across devices.</p>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveSettings()" style="margin-top:8px;">Save Settings</button>
+    <p class="field-note" style="margin-top:12px;">Keys are stored in your browser's local storage as a fallback, and in Supabase when connected.</p>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG — baked in for convenience
+// ══════════════════════════════════════════
+const SB_URL = 'https://gntswhwivhzgbaahpwqy.supabase.co';
+const SB_KEY = 'sb_publishable_cFtogIiMoTSVSAg0LEg53g_5rJdVopC';
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let db = null;
+let apiKey = '';
+let currentId = null;
+let currentReport = null;
+let currentIdea = '';
+let chatHistory = [];
+let currentObjections = [];
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  apiKey = localStorage.getItem('v_api_key') || '';
+  if (apiKey) {
+    document.getElementById('anthropicKey').value = apiKey;
+    document.getElementById('anthropicStatus').textContent = '✓ Saved';
+    document.getElementById('anthropicStatus').className = 'status ok';
+  }
+
+  // Pre-fill settings fields
+  document.getElementById('supabaseUrl').value = SB_URL;
+  document.getElementById('supabaseKey').value = SB_KEY;
+
+  // Init Supabase
+  initDB(SB_URL, SB_KEY);
+});
+
+function initDB(url, key) {
+  try {
+    db = window.supabase.createClient(url, key);
+    document.getElementById('supabaseStatus').textContent = '✓ Connected';
+    document.getElementById('supabaseStatus').className = 'status ok';
+    loadHistory();
+  } catch(e) {
+    console.error('Supabase init error:', e);
+    document.getElementById('supabaseStatus').textContent = 'Error';
+  }
+}
+
+function saveSettings() {
+  const ak = document.getElementById('anthropicKey').value.trim();
+  const url = document.getElementById('supabaseUrl').value.trim();
+  const key = document.getElementById('supabaseKey').value.trim();
+
+  if (ak) {
+    apiKey = ak;
+    localStorage.setItem('v_api_key', ak);
+    document.getElementById('anthropicStatus').textContent = '✓ Saved';
+    document.getElementById('anthropicStatus').className = 'status ok';
+  }
+  if (url && key) initDB(url, key);
+}
+
+// ══════════════════════════════════════════
+// TABS & STAGES
+// ══════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const tabs = ['validate','strategist','history','settings'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  if (name === 'history') loadHistory();
+}
+
+function switchStage(name) {
+  ['refine','objections','valuestack'].forEach(s => {
+    document.getElementById('stage-' + s).style.display = 'none';
+    document.getElementById('stage-' + s).classList.remove('active');
+    document.getElementById('stage-tab-' + s).classList.remove('active');
+  });
+  document.getElementById('stage-' + name).style.display = 'block';
+  document.getElementById('stage-' + name).classList.add('active');
+  document.getElementById('stage-tab-' + name).classList.add('active');
+}
+
+function goToStrategist() {
+  switchTab('strategist');
+}
+
+// ══════════════════════════════════════════
+// SUPABASE DB
+// ══════════════════════════════════════════
+async function dbSave(entry) {
+  if (!db) return;
+  try {
+    const { error } = await db.from('validations').upsert(entry);
+    if (error) console.error('DB save error:', error);
+  } catch(e) { console.error('DB save exception:', e); }
+}
+
+async function dbUpdate(id, fields) {
+  if (!db) return;
+  try {
+    const { error } = await db.from('validations').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) console.error('DB update error:', error);
+  } catch(e) { console.error('DB update exception:', e); }
+}
+
+async function dbDelete(id) {
+  if (!db) return;
+  try {
+    await db.from('validations').delete().eq('id', id);
+  } catch(e) { console.error('DB delete error:', e); }
+}
+
+async function dbLoad() {
+  if (!db) return [];
+  try {
+    const { data, error } = await db.from('validations').select('*').order('created_at', { ascending: false }).limit(50);
+    if (error) { console.error('DB load error:', error); return []; }
+    return data || [];
+  } catch(e) { console.error('DB load exception:', e); return []; }
+}
+
+// ══════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════
+async function loadHistory() {
+  const items = await dbLoad();
+  renderHistoryPanel(items);
+}
+
+function renderHistoryPanel(items) {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  list.innerHTML = '';
+
+  if (!items.length) {
+    empty.style.display = 'block';
+    list.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.style.display = 'flex';
+
+  items.forEach(entry => {
+    const verdict = entry.report?.verdict || '';
+    const vCls = verdict === 'Build It' ? 'build' : verdict === 'Refine It' ? 'refine' : 'drop';
+    const date = new Date(entry.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    const hasChatHistory = entry.chat_history && entry.chat_history.length > 0;
+    const hasObjections = entry.objections && entry.objections.length > 0;
+    const hasValueStack = entry.value_stack && entry.value_stack.length > 0;
+
+    const div = document.createElement('div');
+    div.className = 'history-entry' + (entry.id === currentId ? ' active' : '');
+    div.dataset.id = entry.id;
+    div.innerHTML = `
+      <div>
+        <div class="he-idea">${escHtml(entry.idea || '')}</div>
+        <div class="he-stages">
+          <span class="he-stage-dot ${entry.report ? 'done' : ''}">Validated</span>
+          <span class="he-stage-dot ${hasChatHistory ? 'done' : ''}">Refined</span>
+          <span class="he-stage-dot ${hasObjections ? 'done' : ''}">Objections</span>
+          <span class="he-stage-dot ${hasValueStack ? 'done' : ''}">Value Stack</span>
+        </div>
+        <div class="he-date">${date}</div>
+      </div>
+      <span class="he-verdict ${vCls}">${escHtml(verdict)}</span>
+      <span class="he-del" data-id="${entry.id}">✕</span>
+    `;
+    div.addEventListener('click', (e) => {
+      if (e.target.classList.contains('he-del')) { deleteEntry(e.target.dataset.id); return; }
+      loadEntry(entry);
+    });
+    list.appendChild(div);
+  });
+}
+
+async function deleteEntry(id) {
+  await dbDelete(id);
+  if (currentId === id) { currentId = null; currentReport = null; }
+  loadHistory();
+}
+
+function loadEntry(entry) {
+  currentId = entry.id;
+  currentIdea = entry.idea || '';
+  currentReport = entry.report;
+  chatHistory = entry.chat_history || [];
+  currentObjections = entry.objections || [];
+
+  // Load into validate view
+  document.getElementById('ideaInput').value = currentIdea;
+  if (currentReport) {
+    hideValidateLoading();
+    renderResults(currentReport);
+  }
+
+  // Load into strategist
+  if (currentReport) {
+    showStrategistSession();
+    // Restore chat
+    const msgs = document.getElementById('chatMessages');
+    msgs.innerHTML = '<div class="chat-msg assistant"><div class="chat-bubble">I\'ve read your validation report. Let\'s refine your idea into something sharper. Ask me anything — which angle to pursue, who the exact buyer is, how to position it, what to name it. What do you want to figure out first?</div></div>';
+    chatHistory.forEach(m => appendMsg(m.role, m.content));
+    // Restore objections
+    if (currentObjections.length) renderObjections(currentObjections);
+    // Restore value stack
+    if (entry.value_stack && entry.value_stack.length) renderValueStack(entry.value_stack, entry.offer_summary);
+  }
+
+  switchTab('validate');
+  document.querySelectorAll('.history-entry').forEach(el => el.classList.toggle('active', el.dataset.id === entry.id));
+}
+
+// ══════════════════════════════════════════
+// VALIDATION
+// ══════════════════════════════════════════
+const VALIDATE_PROMPT = `You are a ruthlessly honest demand analyst. Your job is to determine whether a digital product idea has real, current market demand using live web search evidence only.
+
+Search the web thoroughly — at least 5-6 different searches covering Reddit frustrations, Google search signals, existing solutions, recent complaints, and YouTube/community demand.
+
+After all searches, respond ONLY with a valid JSON object, no markdown fences:
+
+{
+  "painLevel": "High" | "Medium" | "Low",
+  "painSummary": "2-3 honest sentences about what you found",
+  "recency": { "label": "Active" | "Ongoing" | "Fading" | "Dead", "detail": "Specific dates/timeframes found" },
+  "exactPhrases": ["phrase 1", "phrase 2", "phrase 3", "phrase 4"],
+  "gapAnalysis": { "existingSolutions": "What exists and why it falls short", "gap": "The specific unmet need" },
+  "suggestedAngles": [
+    { "angle": "Specific angle", "reason": "Why stronger based on evidence" },
+    { "angle": "Second angle", "reason": "Why this works" },
+    { "angle": "Third angle", "reason": "Why this works" }
+  ],
+  "verdict": "Build It" | "Refine It" | "Drop It",
+  "verdictReason": "2-3 direct sentences explaining the verdict",
+  "searchedQueries": ["query1", "query2", "query3"]
+}`;
+
+const PROGRESS_STEPS = [
+  'Searching Reddit for frustrations and complaints...',
+  'Checking Google search signals and intent...',
+  'Looking for existing solutions and gaps...',
+  'Finding the most recent expressions of pain...',
+  'Analysing demand strength and recency...',
+  'Identifying angles and opportunities...',
+  'Forming verdict based on all evidence...',
+];
+
+let progressInterval = null;
+
+function startProgress(logId) {
+  const log = document.getElementById(logId);
+  log.innerHTML = '';
+  let i = 0;
+  progressInterval = setInterval(() => {
+    if (i >= PROGRESS_STEPS.length) { clearInterval(progressInterval); return; }
+    log.querySelectorAll('.log-line.latest').forEach(el => el.classList.remove('latest'));
+    const line = document.createElement('div');
+    line.className = 'log-line latest';
+    line.textContent = PROGRESS_STEPS[i++];
+    log.appendChild(line);
+  }, 3000);
+}
+
+function stopProgress() { if (progressInterval) { clearInterval(progressInterval); progressInterval = null; } }
+
+async function callClaude(systemPrompt, userMessage, useWebSearch) {
+  const messages = [{ role: 'user', content: userMessage }];
+  let finalText = null;
+  let turns = 0;
+
+  const tools = useWebSearch ? [{ type: 'web_search_20250305', name: 'web_search' }] : [];
+
+  while (!finalText && turns < 15) {
+    turns++;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 4000,
+        system: systemPrompt,
+        tools,
+        messages,
+      }),
+    });
+
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `API error ${res.status}`); }
+    const data = await res.json();
+    messages.push({ role: 'assistant', content: data.content });
+
+    if (data.stop_reason === 'end_turn') {
+      finalText = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    } else if (data.stop_reason === 'tool_use') {
+      const toolBlocks = data.content.filter(b => b.type === 'tool_use' || b.type === 'server_tool_use');
+      if (!toolBlocks.length) break;
+      messages.push({ role: 'user', content: toolBlocks.map(b => ({ type: 'tool_result', tool_use_id: b.id, content: b.output || 'Search completed.' })) });
+    } else {
+      finalText = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    }
+  }
+
+  return finalText;
+}
+
+function parseJSON(text) {
+  const clean = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+  const s = clean.indexOf('{'), e = clean.lastIndexOf('}');
+  if (s === -1 || e === -1) throw new Error('Could not parse response. Please try again.');
+  return JSON.parse(clean.slice(s, e + 1));
+}
+
+async function runValidation() {
+  const idea = document.getElementById('ideaInput').value.trim();
+  if (!apiKey) { showError('Please enter your Anthropic API key in Settings first.'); return; }
+  if (!idea) { showError('Please describe your idea first.'); return; }
+
+  hideValidateLoading();
+  document.getElementById('loadingSection').classList.add('active');
+  document.getElementById('validateBtn').disabled = true;
+  document.getElementById('errorBlock').classList.remove('active');
+  startProgress('progressLog');
+
+  try {
+    const raw = await callClaude(VALIDATE_PROMPT, `Validate this digital product idea: "${idea}"\n\nSearch thoroughly and return only the JSON object.`, true);
+    stopProgress();
+    const parsed = parseJSON(raw);
+
+    currentIdea = idea;
+    currentReport = parsed;
+    currentId = Date.now().toString();
+    chatHistory = [];
+    currentObjections = [];
+
+    renderResults(parsed);
+    showStrategistSession();
+
+    await dbSave({
+      id: currentId,
+      idea: currentIdea,
+      report: currentReport,
+      chat_history: [],
+      objections: [],
+      value_stack: [],
+      offer_summary: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+  } catch(err) {
+    stopProgress();
+    showError(err.message || 'Something went wrong. Please try again.');
+    console.error(err);
+  }
+
+  document.getElementById('validateBtn').disabled = false;
+  document.getElementById('loadingSection').classList.remove('active');
+}
+
+function renderResults(d) {
+  const vColors = { 'Build It':'#00d98b', 'Refine It':'#f0c040', 'Drop It':'#ff5050' };
+  const vIcons = { 'Build It':'🟢', 'Refine It':'🟡', 'Drop It':'🔴' };
+  const pColors = { High:'#ff5050', Medium:'#f0c040', Low:'#666' };
+  const rColors = { Active:'#00d98b', Ongoing:'#f0c040', Fading:'#ff9933', Dead:'#555' };
+
+  const color = vColors[d.verdict] || '#888';
+  document.getElementById('verdictBlock').style.borderColor = color + '28';
+  document.getElementById('verdictIcon').textContent = vIcons[d.verdict] || '⚪';
+  document.getElementById('verdictWord').textContent = d.verdict;
+  document.getElementById('verdictWord').style.color = color;
+  document.getElementById('verdictReason').textContent = d.verdictReason || '';
+  document.getElementById('painValue').textContent = d.painLevel || '—';
+  document.getElementById('painValue').style.color = pColors[d.painLevel] || '#888';
+  document.getElementById('painDetail').textContent = (d.painSummary || '').slice(0, 90) + '...';
+  document.getElementById('recencyValue').textContent = d.recency?.label || '—';
+  document.getElementById('recencyValue').style.color = rColors[d.recency?.label] || '#888';
+  document.getElementById('recencyDetail').textContent = d.recency?.detail || '';
+  document.getElementById('painSummary').textContent = d.painSummary || '';
+
+  const pl = document.getElementById('phraseList');
+  pl.innerHTML = '';
+  (d.exactPhrases || []).forEach(p => { const li = document.createElement('li'); li.className = 'phrase-item'; li.textContent = p; pl.appendChild(li); });
+
+  document.getElementById('existingSolutions').textContent = d.gapAnalysis?.existingSolutions || '';
+  document.getElementById('gapText').textContent = d.gapAnalysis?.gap || '';
+
+  const al = document.getElementById('anglesList');
+  al.innerHTML = '';
+  (d.suggestedAngles || []).forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = 'angle-card';
+    card.innerHTML = `<div class="angle-num">Angle ${String(i+1).padStart(2,'0')}</div><div class="angle-title">${escHtml(a.angle)}</div><div class="angle-reason">${escHtml(a.reason)}</div>`;
+    al.appendChild(card);
+  });
+
+  const st = document.getElementById('searchTags');
+  st.innerHTML = '';
+  (d.searchedQueries || []).forEach(q => { const t = document.createElement('span'); t.className = 'search-tag'; t.textContent = q; st.appendChild(t); });
+
+  document.getElementById('resultsSection').classList.add('active');
+}
+
+function hideValidateLoading() {
+  document.getElementById('loadingSection').classList.remove('active');
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('errorBlock').classList.remove('active');
+}
+
+function showError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorBlock').classList.add('active');
+}
+
+function resetValidation() {
+  hideValidateLoading();
+  document.getElementById('ideaInput').value = '';
+  document.getElementById('ideaInput').focus();
+}
+
+// ══════════════════════════════════════════
+// STRATEGIST SESSION
+// ══════════════════════════════════════════
+function showStrategistSession() {
+  document.getElementById('stratNoSession').style.display = 'none';
+  document.getElementById('stratSession').style.display = 'block';
+
+  // Set context bar
+  const idea = currentIdea;
+  const verdict = currentReport?.verdict || '';
+  const vCls = verdict === 'Build It' ? 'build' : verdict === 'Refine It' ? 'refine' : 'drop';
+  document.getElementById('chatContextIdea').textContent = idea;
+  document.getElementById('chatContextVerdict').textContent = verdict;
+  document.getElementById('chatContextVerdict').className = `chat-context-verdict ${vCls}`;
+}
+
+// ══════════════════════════════════════════
+// CHAT (REFINE STAGE)
+// ══════════════════════════════════════════
+const CHAT_SYSTEM = () => `You are a sharp product strategist. You have just completed a demand validation. Full context:
+
+IDEA: ${currentIdea}
+VERDICT: ${currentReport?.verdict} — ${currentReport?.verdictReason}
+PAIN LEVEL: ${currentReport?.painLevel}
+PAIN SUMMARY: ${currentReport?.painSummary}
+RECENCY: ${currentReport?.recency?.label} — ${currentReport?.recency?.detail}
+WHAT PEOPLE SAY: ${(currentReport?.exactPhrases||[]).join(' | ')}
+EXISTING SOLUTIONS: ${currentReport?.gapAnalysis?.existingSolutions}
+THE GAP: ${currentReport?.gapAnalysis?.gap}
+SUGGESTED ANGLES: ${(currentReport?.suggestedAngles||[]).map(a=>a.angle+': '+a.reason).join(' | ')}
+
+Be direct, specific, and strategic. No fluff. Short paragraphs. Use **bold** for key points.`;
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || !currentReport) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  chatHistory.push({ role: 'user', content: msg });
+  appendMsg('user', msg);
+  if (currentId) await dbUpdate(currentId, { chat_history: chatHistory });
+
+  document.getElementById('chatSendBtn').disabled = true;
+  const thinkId = 'think-' + Date.now();
+  appendMsg('assistant', 'Thinking...', thinkId, true);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 1000, system: CHAT_SYSTEM(), messages: chatHistory }),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API error'); }
+    const data = await res.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Sorry, could not generate a response.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    if (currentId) await dbUpdate(currentId, { chat_history: chatHistory });
+    document.getElementById(thinkId)?.remove();
+    appendMsg('assistant', reply);
+  } catch(err) {
+    document.getElementById(thinkId)?.remove();
+    appendMsg('assistant', 'Something went wrong. Please try again.');
+    console.error(err);
+  }
+
+  document.getElementById('chatSendBtn').disabled = false;
+  input.focus();
+}
+
+function appendMsg(role, text, id, thinking) {
+  const msgs = document.getElementById('chatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = `chat-msg ${role}`;
+  if (id) wrap.id = id;
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble' + (thinking ? ' thinking' : '');
+  if (!thinking) {
+    const html = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .split('\n\n').map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+    bubble.innerHTML = html;
+  } else { bubble.textContent = text; }
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ══════════════════════════════════════════
+// OBJECTIONS STAGE
+// ══════════════════════════════════════════
+const OBJECTIONS_PROMPT = () => `You are a conversion researcher. Your job is to find every single reason someone in the target audience would say NO to buying this digital product.
+
+PRODUCT IDEA: ${currentIdea}
+VALIDATION CONTEXT: Pain Level: ${currentReport?.painLevel}. Gap: ${currentReport?.gapAnalysis?.gap}. Target Audience signals: ${(currentReport?.exactPhrases||[]).join('; ')}
+
+Search the web for:
+- Common objections to buying similar products/courses
+- What people say in reviews about why they hesitated
+- Price sensitivity in this niche
+- Trust issues with digital products in this space
+- Timing and priority objections
+- "I can get this for free" objections
+- Fear of failure or wasted money objections
+- Competitor comparisons
+
+Be exhaustive. Think like someone who wants to say no. Cover every angle: price, trust, timing, relevance, alternatives, fear, doubt, skepticism.
+
+Return ONLY a JSON object, no markdown:
+{
+  "objections": [
+    "Full sentence describing an objection",
+    "Another objection",
+    ...
+  ]
+}
+
+Include at least 12-15 objections. Nothing missed.`;
+
+async function runObjections() {
+  if (!currentReport) return;
+  document.getElementById('objBtn').disabled = true;
+  document.getElementById('objLoadingSection').classList.add('active');
+
+  const objSteps = [
+    'Researching price objections...',
+    'Finding trust and credibility concerns...',
+    'Identifying timing and priority objections...',
+    'Searching for competitor comparisons...',
+    'Uncovering fear and doubt patterns...',
+    'Compiling complete objection list...',
+  ];
+  const log = document.getElementById('objProgressLog');
+  log.innerHTML = '';
+  let i = 0;
+  const objInterval = setInterval(() => {
+    if (i >= objSteps.length) { clearInterval(objInterval); return; }
+    log.querySelectorAll('.log-line.latest').forEach(el => el.classList.remove('latest'));
+    const line = document.createElement('div');
+    line.className = 'log-line latest';
+    line.textContent = objSteps[i++];
+    log.appendChild(line);
+  }, 2800);
+
+  try {
+    const raw = await callClaude(OBJECTIONS_PROMPT(), `Find every objection for this product idea: "${currentIdea}"\n\nSearch thoroughly and return only the JSON object.`, true);
+    clearInterval(objInterval);
+    const parsed = parseJSON(raw);
+    currentObjections = parsed.objections || [];
+    document.getElementById('vsBtn').disabled = false;
+    document.getElementById('vsNote').style.display = 'none';
+    renderObjections(currentObjections);
+    if (currentId) await dbUpdate(currentId, { objections: currentObjections });
+    document.getElementById('stage-tab-objections').classList.add('done');
+  } catch(err) {
+    clearInterval(objInterval);
+    console.error(err);
+    alert('Error finding objections: ' + err.message);
+  }
+
+  document.getElementById('objLoadingSection').classList.remove('active');
+  document.getElementById('objBtn').disabled = false;
+}
+
+function renderObjections(objections) {
+  document.getElementById('objectionsEmpty').style.display = 'block';
+  document.getElementById('objLoadingSection').classList.remove('active');
+  const list = document.getElementById('objectionItems');
+  list.innerHTML = '';
+  objections.forEach(obj => {
+    const li = document.createElement('li');
+    li.className = 'objection-item';
+    li.textContent = obj;
+    list.appendChild(li);
+  });
+  document.getElementById('objectionsList').style.display = 'block';
+  document.getElementById('objectionsEmpty').querySelector('p').style.display = 'none';
+  document.getElementById('objBtn').style.display = 'none';
+}
+
+function rerunObjections() {
+  document.getElementById('objectionsList').style.display = 'none';
+  document.getElementById('objectionsEmpty').querySelector('p').style.display = 'block';
+  document.getElementById('objBtn').style.display = 'inline-block';
+  document.getElementById('objBtn').disabled = false;
+  currentObjections = [];
+}
+
+// ══════════════════════════════════════════
+// VALUE STACK STAGE
+// ══════════════════════════════════════════
+const VALUE_STACK_PROMPT = () => `You are an offer architect. Your job is to turn every customer objection into a compelling bonus or feature that neutralises it — building an irresistible offer.
+
+PRODUCT IDEA: ${currentIdea}
+VALIDATION: ${currentReport?.painSummary}
+THE GAP: ${currentReport?.gapAnalysis?.gap}
+
+OBJECTIONS TO NEUTRALISE:
+${currentObjections.map((o, i) => `${i+1}. ${o}`).join('\n')}
+
+For each objection, create a specific bonus, feature, or guarantee that directly neutralises it. Make them concrete, specific, and genuinely valuable — not vague promises.
+
+Then write a final offer summary: the complete product with all its bonuses as one compelling paragraph someone would want to read.
+
+Return ONLY a JSON object, no markdown:
+{
+  "valueStack": [
+    {
+      "objection": "The original objection",
+      "bonusName": "Name of the bonus/feature/guarantee",
+      "bonusDescription": "What it is and exactly how it neutralises the objection"
+    }
+  ],
+  "offerTitle": "A compelling name for the complete offer",
+  "offerSummary": "One compelling paragraph describing the complete offer with all its bonuses — written like a pitch, not a list"
+}`;
+
+async function runValueStack() {
+  if (!currentObjections.length) return;
+  document.getElementById('vsBtn').disabled = true;
+  document.getElementById('vsLoadingSection').classList.add('active');
+
+  const vsSteps = [
+    'Analysing each objection...',
+    'Designing bonuses and guarantees...',
+    'Building the value architecture...',
+    'Writing the complete offer...',
+  ];
+  const log = document.getElementById('vsProgressLog');
+  log.innerHTML = '';
+  let i = 0;
+  const vsInterval = setInterval(() => {
+    if (i >= vsSteps.length) { clearInterval(vsInterval); return; }
+    log.querySelectorAll('.log-line.latest').forEach(el => el.classList.remove('latest'));
+    const line = document.createElement('div');
+    line.className = 'log-line latest';
+    line.textContent = vsSteps[i++];
+    log.appendChild(line);
+  }, 2500);
+
+  try {
+    const raw = await callClaude(VALUE_STACK_PROMPT(), `Build the complete value stack for: "${currentIdea}"\n\nReturn only the JSON object.`, false);
+    clearInterval(vsInterval);
+    const parsed = parseJSON(raw);
+    renderValueStack(parsed.valueStack || [], { title: parsed.offerTitle, summary: parsed.offerSummary });
+    if (currentId) await dbUpdate(currentId, { value_stack: parsed.valueStack, offer_summary: { title: parsed.offerTitle, summary: parsed.offerSummary } });
+    document.getElementById('stage-tab-valuestack').classList.add('done');
+  } catch(err) {
+    clearInterval(vsInterval);
+    console.error(err);
+    alert('Error building value stack: ' + err.message);
+  }
+
+  document.getElementById('vsLoadingSection').classList.remove('active');
+  document.getElementById('vsBtn').disabled = false;
+}
+
+function renderValueStack(stack, offerSummary) {
+  document.getElementById('valueStackEmpty').style.display = 'none';
+  const cards = document.getElementById('offerCards');
+  cards.innerHTML = '';
+  stack.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'offer-card';
+    card.innerHTML = `
+      <div class="offer-card-header">
+        <span class="offer-card-objection">Objection: ${escHtml(item.objection)}</span>
+      </div>
+      <div class="offer-card-body">
+        <div class="offer-bonus-name">${escHtml(item.bonusName)}</div>
+        <div class="offer-bonus-desc">${escHtml(item.bonusDescription)}</div>
+      </div>
+    `;
+    cards.appendChild(card);
+  });
+
+  if (offerSummary?.title || offerSummary?.summary) {
+    document.getElementById('offerSummaryTitle').textContent = offerSummary.title || '';
+    document.getElementById('offerSummaryBody').textContent = offerSummary.summary || '';
+    document.getElementById('offerSummary').style.display = 'block';
+  }
+
+  document.getElementById('valueStackResult').style.display = 'block';
+}
+
+function rerunValueStack() {
+  document.getElementById('valueStackResult').style.display = 'none';
+  document.getElementById('valueStackEmpty').style.display = 'block';
+  document.getElementById('vsBtn').disabled = false;
+}
+
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('chatInput');
+  if (ta) ta.addEventListener('input', () => { ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,120)+'px'; });
+});
+
+document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') runValidation(); });
+</script>
+</body>
+</html>
