@@ -788,7 +788,7 @@ function startProgress() {
 
 function stopProgress() { if (progressTimer) clearInterval(progressTimer); }
 
-async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 4000) {
+async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 5000) {
   const tools = useSearch ? [{ type: 'web_search_20250305', name: 'web_search' }] : undefined;
   const allMessages = [...messages];
   let finalText = null;
@@ -796,7 +796,7 @@ async function callClaude(systemPrompt, messages, useSearch = false, maxTokens =
 
   while (!finalText && turns < 15) {
     turns++;
-    const body = { model: 'claude-opus-4-6', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
+    const body = { model: 'claude-opus-4-7', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
     if (tools) body.tools = tools;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1330,7 +1330,7 @@ Return ONLY raw JSON array, no markdown:
   ...
 ]
 
-Return at least 10-15 objections. Be specific to this idea and audience, not generic.`;
+Return at least 20-30 objections. Be specific to this idea and audience, not generic.`;
 
   try {
     const text = await callClaude(prompt, [{ role: 'user', content: 'Find all objections for this product idea.' }], true);
