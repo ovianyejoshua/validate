@@ -1531,7 +1531,7 @@ function startProgress() {
 
 function stopProgress() { if (progressTimer) clearInterval(progressTimer); }
 
-async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 4000) {
+async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 10000) {
   const tools = useSearch ? [{ type: 'web_search_20250305', name: 'web_search' }] : undefined;
   const allMessages = [...messages];
   let finalText = null;
@@ -1539,7 +1539,7 @@ async function callClaude(systemPrompt, messages, useSearch = false, maxTokens =
 
   while (!finalText && turns < 15) {
     turns++;
-    const body = { model: 'claude-opus-4-6', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
+    const body = { model: 'claude-opus-4-7', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
     if (tools) body.tools = tools;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -3623,7 +3623,7 @@ async function testAnthropicKey() {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 10, messages: [{ role: 'user', content: 'Hi' }] })
+      body: JSON.stringify({ model: 'claude-opus-4-7', max_tokens: 20, messages: [{ role: 'user', content: 'Hi' }] })
     });
     if (res.ok) {
       anthropicKey = key;
@@ -6956,7 +6956,7 @@ async function runSalesPage() {
 }
 
 // ══════════════════════════════════════
-// SELL STAGE 6 — AD VARIATIONS
+// SELL STAGE 4 — AD VARIATIONS
 // ══════════════════════════════════════
 const SS_AV_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating ad variations until you have reviewed everything.
 
@@ -7009,7 +7009,7 @@ async function runAdVariations() {
 }
 
 // ══════════════════════════════════════
-// SELL STAGE 6 — AD ITERATION LOOP
+// SELL STAGE 5 — AD ITERATION LOOP
 // ══════════════════════════════════════
 const SS4_SYSTEM = `Before you begin, read all the following inputs carefully and completely.
 
@@ -7091,7 +7091,7 @@ function runAnotherIteration() {
 // ══════════════════════════════════════
 // SELL STAGE 6 — BACKEND ARCHITECTURE
 // ══════════════════════════════════════
-const SS5_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating the backend architecture until you have reviewed everything.
+const SS6_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating the backend architecture until you have reviewed everything.
 
 You are an expert business strategist, digital product architect and direct response marketer. You have been given: full market research, detailed audience intelligence map, refined offer and completed front end product, full sales strategy, and cumulative learning log from ad iterations if available.
 
