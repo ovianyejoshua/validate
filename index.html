@@ -1251,7 +1251,7 @@ async function dbLoad(id) {
 async function dbLoadAll() {
   if (!db) return [];
   try {
-    const { data, error } = await db.from('validations').select('id,idea,report,created_at,refine_history,objections,value_stack,final_offer,audience_intel,finalised_offer,blueprint,approved_blueprint,chapters,build_complete,sales_strategy,sales_page,ad_variations,ad_iterations,cumulative_learning_log,backend_architecture').order('created_at', { ascending: false }).limit(50);
+    const { data, error } = await db.from('validations').select('id,idea,report,created_at,refine_history,objections,value_stack,final_offer,audience_intel,finalised_offer,blueprint,approved_blueprint,chapters,build_complete,sales_strategy,sales_page,ad_variations,ad_iterations,cumulative_learning_log,backend_architecture').eq('user_id', currentUser?.id).order('created_at', { ascending: false }).limit(50);
     if (error) { console.error('DB loadAll error:', error); return []; }
     return data || [];
   } catch(e) { console.error('DB loadAll exception:', e); return []; }
@@ -1265,10 +1265,21 @@ async function dbDelete(id) {
   } catch(e) { console.error('DB delete exception:', e); }
 }
 
+  async function dbUpdate(id, fields) {
+  if (!db) return;
+  try {
+    const { error } = await db.from('validations')
+      .update({ ...fields, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) console.error('DB update error:', error);
+  } catch(e) { console.error('DB update exception:', e); }
+}
+
 async function saveCurrentState() {
   if (!currentId) return;
   await dbSave({
     id: currentId,
+    user_id: currentUser?.id || null,
     idea: currentIdea,
     report: currentReport,
     refine_history: refineHistory,
@@ -1403,7 +1414,7 @@ async function loadEntry(id) {
 
   // Restore strategist tab
   setupStrategist();
-  restoreStrategistStages();
+  restoreStrategistStages(entry);
 
   // Update history bar active state
   document.querySelectorAll('.h-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
@@ -1805,7 +1816,7 @@ async function runValidation() {
   document.getElementById('aiContent').style.display = 'none';
   document.getElementById('aiLoading').style.display = 'none';
 
-    await dbSave({ id: currentId, idea: currentIdea, report: currentReport, audience_intel: null, refine_history: [], objections: [], value_stack: [], final_offer: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+    await dbSave({ id: currentId, user_id: currentUser?.id || null, idea: currentIdea, report: currentReport, audience_intel: null, refine_history: [], objections: [], value_stack: [], final_offer: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
 
     document.getElementById('loadingBox').classList.remove('active');
     document.getElementById('validateBtn').disabled = false;
@@ -2570,7 +2581,7 @@ function resetStrategist() {
   document.getElementById('stage1Body').classList.add('open');
 }
 
-function restoreStrategistStages() {
+function restoreStrategistStages(entry) {
   if (!currentReport) return;
   setupStrategist();
 
