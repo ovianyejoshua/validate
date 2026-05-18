@@ -201,7 +201,7 @@ Return ONLY raw JSON array, no markdown:
   ...
 ]
 
-Return at least 10-15 objections. Be specific to this idea and audience, not generic.`;
+Return at least 15-20 objections. Be specific to this idea and audience, not generic.`;
 
   try {
     const text = await callClaude(prompt, [{ role: 'user', content: 'Find all objections for this product idea.' }], true);
