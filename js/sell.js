@@ -257,7 +257,7 @@ async function runSalesPage() {
 }
 
 // ══════════════════════════════════════
-// SELL STAGE 6 — AD VARIATIONS
+// SELL STAGE 4 — AD VARIATIONS
 // ══════════════════════════════════════
 const SS_AV_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating until you have reviewed everything.
 
@@ -396,9 +396,9 @@ async function runAdVariations() {
 }
 
 // ══════════════════════════════════════
-// SELL STAGE 6 — AD ITERATION LOOP
+// SELL STAGE 5 — AD ITERATION LOOP
 // ══════════════════════════════════════
-const SS4_SYSTEM = `Before you begin, read all the following inputs carefully and completely.
+const SS5_SYSTEM = `Before you begin, read all the following inputs carefully and completely.
 
 You are an expert paid media strategist, direct response copywriter and consumer behaviour analyst. You have been given: original ad variations tested, performance data (may be raw metrics, human description, or both — accept and interpret either), audience intelligence map, sales strategy, and cumulative learning log from previous iterations if one exists.
 
@@ -418,7 +418,7 @@ STEP 6 — TESTING ROADMAP FOR THIS ROUND: First 10 to test, experiments to watc
 
 STEP 7 — BRIEF NOTE: Most important insight this iteration revealed, how intelligence map should be updated, where next iteration finds biggest gains, honest assessment of how much stronger this round is.`;
 
-const SS4_STEPS = [
+const SS5_STEPS = [
   'Analysing performance data...',
   'Extracting winning DNA from top performers...',
   'Identifying losing patterns to retire...',
@@ -433,7 +433,7 @@ async function runAdIteration() {
   document.getElementById('ss5Btn').disabled = true;
   document.getElementById('ss5Loading').style.display = 'block';
   document.getElementById('ss5Result').style.display = 'none';
-  const intv = startSellLog('ss5Log', SS4_STEPS);
+  const intv = startSellLog('ss5Log', SS5_STEPS);
   const iterNum = adIterations.length + 1;
   const context = sellContext()
     + '\n\nSALES STRATEGY:\n' + (salesStrategy||'')
@@ -442,7 +442,7 @@ async function runAdIteration() {
     + '\n\nPERFORMANCE DATA FROM TESTING:\n' + perfData
     + `\n\nThis is iteration ${iterNum}. Analyse, extract winning DNA, update cumulative log, generate next round.`;
   try {
-    const text = await callClaude(SS4_SYSTEM, [{ role: 'user', content: context }], false, 8000);
+    const text = await callClaude(SS5_SYSTEM, [{ role: 'user', content: context }], false, 8000);
     clearInterval(intv);
     adIterations.push({ iteration: iterNum, data: perfData, result: text });
     // Extract and update cumulative learning log
@@ -506,7 +506,7 @@ STEP 3 — REVENUE PROJECTION: What architecture looks like with 100 front end c
 
 AFTER GENERATING — Note: single biggest backend opportunity, quickest win to build first, longest term highest value play, honest assessment of where architecture is strongest.`;
 
-const SS5_STEPS = [
+const SS6_STEPS = [
   'Mapping audience next problem chain...',
   'Designing downsell for non-buyers...',
   'Designing upsells for buyers...',
@@ -519,12 +519,12 @@ const SS5_STEPS = [
 async function runBackendArchitecture() {
   document.getElementById('ss6Btn').disabled = true;
   document.getElementById('ss6Loading').style.display = 'block';
-  const intv = startSellLog('ss6Log', SS5_STEPS);
+  const intv = startSellLog('ss6Log', SS6_STEPS);
   const context = sellContext()
     + '\n\nSALES STRATEGY:\n' + (salesStrategy||'')
     + (cumulativeLearningLog ? '\n\nCUMULATIVE LEARNING LOG FROM AD ITERATIONS:\n' + cumulativeLearningLog : '');
   try {
-    const text = await callClaude(SS5_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete backend architecture now.' }], false, 8000);
+    const text = await callClaude(SS6_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete backend architecture now.' }], false, 8000);
     clearInterval(intv);
     backendArchitecture = text;
     document.getElementById('ss6Output').textContent = text;
