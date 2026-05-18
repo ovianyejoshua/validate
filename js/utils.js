@@ -14,7 +14,7 @@ function startProgress() {
 
 function stopProgress() { if (progressTimer) clearInterval(progressTimer); }
 
-async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 4000) {
+async function callClaude(systemPrompt, messages, useSearch = false, maxTokens = 10000) {
   const tools = useSearch ? [{ type: 'web_search_20250305', name: 'web_search' }] : undefined;
   const allMessages = [...messages];
   let finalText = null;
@@ -22,7 +22,7 @@ async function callClaude(systemPrompt, messages, useSearch = false, maxTokens =
 
   while (!finalText && turns < 15) {
     turns++;
-    const body = { model: 'claude-opus-4-6', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
+    const body = { model: 'claude-opus-4-7', max_tokens: maxTokens, system: systemPrompt, messages: allMessages };
     if (tools) body.tools = tools;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
