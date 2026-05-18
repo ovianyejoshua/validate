@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validate — Idea Demand Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">VALID<b>·</b>ATE</div>
+    <div id="authLogin">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Enter your username and PIN to continue where you left off.</div>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-label">Username</div>
+      <input type="text" class="auth-input" id="loginUsername" placeholder="your_username" autocomplete="off" spellcheck="false">
+      <div class="auth-label">PIN</div>
+      <input type="password" class="auth-input" id="loginPin" placeholder="4-digit PIN" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+      <div class="auth-switch" onclick="showRegister()">New here? <span>Create an account</span></div>
+    </div>
+    <div id="authRegister" style="display:none">
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Choose a unique username and set a 4-digit PIN. You'll use these every time you open the app.</div>
+      <div class="auth-error" id="registerError"></div>
+      <div class="auth-label">Choose a username</div>
+      <input type="text" class="auth-input" id="registerUsername" placeholder="unique_username" autocomplete="off" spellcheck="false">
+      <div class="auth-label">Set a 4-digit PIN</div>
+      <input type="password" class="auth-input" id="registerPin" placeholder="4 digits" maxlength="4" autocomplete="off">
+      <div class="auth-label">Confirm PIN</div>
+      <input type="password" class="auth-input" id="registerPinConfirm" placeholder="4 digits again" maxlength="4" autocomplete="off" onkeydown="if(event.key==='Enter')doRegister()">
+      <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+      <div class="auth-switch" onclick="showLogin()">Already have an account? <span>Sign in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div class="admin-screen" id="adminScreen">
+  <div class="admin-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="admin-title">Admin View</div>
+      <span class="admin-badge">Osemudiame</span>
+    </div>
+    <button class="admin-close" onclick="closeAdmin()">Close Admin View</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-sidebar">
+      <div class="admin-sidebar-title">Users</div>
+      <div id="adminUserList"></div>
+    </div>
+    <div class="admin-main" id="adminMain">
+      <div class="admin-main-empty" id="adminMainEmpty">Select a user to view their sessions</div>
+      <div id="adminUserDetail" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+<header>
+  <div class="wordmark">VALID<span>·</span>ATE</div>
+  <div class="header-right">
+    <span class="db-status connecting" id="dbStatus">Connecting...</span>
+    <span class="header-tag">Demand Intelligence</span>
+  </div>
+  <div class="auth-user-badge" id="headerUserBadge" style="display:none">
+    <div class="auth-user-dot"></div>
+    <span class="auth-user-name" id="headerUsername"></span>
+    <button class="auth-logout" onclick="doLogout()">Sign out</button>
+  </div>
+</header>
+
+<div class="history-bar" id="historyBar">
+  <div class="history-inner" id="historyInner">
+    <span class="history-label">Recent</span>
+  </div>
+</div>
+
+<nav class="tabs">
+  <button class="tab" onclick="switchTab('source')">Source Ideas</button>
+  <button class="tab active" onclick="switchTab('validate')">Validate</button>
+  <button class="tab" onclick="switchTab('strategist')">Strategist</button>
+  <button class="tab" onclick="switchTab('history')">History</button>
+  <button class="tab" id="tab-build" onclick="switchTab('build')" style="opacity:.35;cursor:not-allowed" disabled>Build</button>
+  <button class="tab" id="tab-sell" onclick="switchTab('sell')" style="opacity:.35;cursor:not-allowed" disabled>Sell</button>
+  <button class="tab" onclick="switchTab('settings')">Settings</button>
+</nav>
+
+<!-- ═══ SOURCE IDEAS PANEL ═══ -->
+<div class="panel" id="panel-source">
+  <div class="eyebrow">Idea Sourcing</div>
+  <h1 class="hero-headline">Find the idea<br><em>worth building</em></h1>
+  <p class="hero-sub">No idea yet? The tool hunts for you. It searches Reddit, YouTube, Amazon reviews, and forums for underserved audiences with real pain and money already moving — then surfaces the strongest gem candidates ranked by evidence.</p>
+
+  <div class="source-method-grid">
+    <div class="source-method-card" id="methodCard1" onclick="selectMethod(1)">
+      <div class="source-method-title">Hunt within a category</div>
+      <div class="source-method-desc">Give the tool a space to search — parenting, fitness, finance, relationships, career. It finds the underserved niche within it.</div>
+    </div>
+    <div class="source-method-card" id="methodCard2" onclick="selectMethod(2)">
+      <div class="source-method-title">Full autonomy</div>
+      <div class="source-method-desc">No direction. The tool follows the strongest signals it finds anywhere on the internet. Where pain is loudest and solutions are thinnest.</div>
+    </div>
+  </div>
+
+  <input type="text" class="source-category-input" id="categoryInput" placeholder="e.g. parenting, personal finance, fitness after 40, remote work...">
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="btn-primary" id="sourceBtn" onclick="runIdeaSourcing()" disabled>Hunt for Ideas →</button>
+    <span id="sourceHint" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Select a method above to begin</span>
+  </div>
+
+  <div class="loading" id="sourceLoading" style="display:none;margin-top:32px">
+    <div class="loading-title">Hunting across the internet <span class="pulse-dot"></span></div>
+    <div class="progress-log" id="sourceLog"></div>
+  </div>
+
+  <div class="source-results" id="sourceResults">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px">Ideas Ranked by Evidence Strength</div>
+    <div id="ideaCardsList"></div>
+    <div id="rankingTableWrap" style="display:none">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:32px;margin-bottom:14px">Overall Ranking Summary</div>
+      <table class="source-ranking-table" id="rankingTable"></table>
+    </div>
+    <div class="hunting-notes" id="huntingNotes" style="display:none">
+      <div class="hunting-notes-title">Hunting Notes</div>
+      <div class="hunting-notes-body" id="huntingNotesBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VALIDATE PANEL ═══ -->
+<div class="panel active" id="panel-validate">
+  <div class="eyebrow">Before you build anything</div>
+  <h1 class="section-title">Is anyone <em>starving</em><br>for your idea?</h1>
+  <p class="section-sub">Enter your digital product idea. The tool searches Reddit, Google, and the web in real time — then tells you if real demand exists.</p>
+
+  <div class="field-label">Your Idea</div>
+  <textarea class="idea-textarea" id="ideaInput" rows="4" placeholder="Describe your digital product idea in detail. E.g. 'A budgeting course for Nigerian freelancers in their 20s who earn inconsistent income and struggle to save...'" spellcheck="false"></textarea>
+  <div class="input-footer">
+    <span class="char-hint">Be specific — the more detail, the sharper the analysis</span>
+    <button class="btn-primary" id="validateBtn" onclick="runValidation()">Validate Idea →</button>
+  </div>
+
+  <div class="loading-box" id="loadingBox">
+    <div class="loading-title">Searching the web <span class="pulse-dot"></span></div>
+    <div class="progress-log" id="progressLog"></div>
+  </div>
+
+  <div class="error-box" id="errorBox"><div class="error-msg" id="errorMsg"></div></div>
+
+  <div class="report-box" id="reportBox">
+    <hr class="divider">
+    <div class="verdict-block" id="verdictBlock">
+      <div class="verdict-left">
+        <span class="verdict-icon" id="verdictIcon"></span>
+        <div class="verdict-word" id="verdictWord"></div>
+      </div>
+      <div class="verdict-reason" id="verdictReason"></div>
+    </div>
+    <div class="metrics-row">
+      <div class="metric-cell">
+        <div class="metric-label">Pain Level</div>
+        <div class="metric-value" id="painValue"></div>
+        <div class="metric-detail" id="painDetail"></div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-label">Demand Recency</div>
+        <div class="metric-value" id="recencyValue"></div>
+        <div class="metric-detail" id="recencyDetail"></div>
+      </div>
+    </div>
+    <div class="rs"><div class="rs-label">Pain Summary</div><p class="body-text" id="painSummary"></p></div>
+    <div class="rs"><div class="rs-label">What People Are Actually Saying</div><ul class="phrase-list" id="phraseList"></ul></div>
+    <div class="rs">
+      <div class="rs-label">Gap Analysis</div>
+      <div class="gap-grid">
+        <div class="gap-card"><div class="gap-card-label">What Exists</div><div class="gap-card-text" id="existingSolutions"></div></div>
+        <div class="gap-card"><div class="gap-card-label">The Gap</div><div class="gap-card-text" id="gapText"></div></div>
+      </div>
+    </div>
+    <div class="rs"><div class="rs-label">Suggested Angles</div><div id="anglesList"></div></div>
+    <div class="rs"><div class="rs-label">Searches Performed</div><div class="search-tags" id="searchTags"></div></div>
+    <div class="report-actions">
+      <button class="go-strategist-btn" onclick="goToStrategist()">Continue to Strategist →</button>
+      <button class="btn-ghost" onclick="resetValidate()">← New Idea</button>
+    </div>
+  </div>
+
+  <!-- AUDIENCE INTELLIGENCE -->
+  <div class="ai-section" id="aiSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-top:40px;border-top:1px solid var(--border)">
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px">Audience Intelligence</div>
+        <div style="font-family:var(--font);font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--text)">Who exactly is feeling this pain</div>
+      </div>
+      <div id="aiStatusBadge" style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:2px;border:1px solid var(--border);color:var(--muted)">Building...</div>
+    </div>
+    <div id="aiLoading">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">Mapping audience psychology <span class="pulse-dot"></span></div>
+      <div class="progress-log" id="aiLog"></div>
+    </div>
+    <div id="aiContent" style="display:none">
+      <div class="ai-block"><div class="ai-block-title">Section 1 — Their Language</div><div class="ai-block-body" id="ai1"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 2 — Their Emotional State</div><div class="ai-block-body" id="ai2"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 3 — Their Thinking</div><div class="ai-block-body" id="ai3"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 4 — Their Behaviour</div><div class="ai-block-body" id="ai4"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 5 — The Problem Chain</div><div class="ai-block-body" id="ai5"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 6 — Signal Strength</div><div class="ai-block-body" id="ai6"></div></div>
+      <div class="ai-block"><div class="ai-block-title">Section 7 — Implications</div><div class="ai-block-body" id="ai7"></div></div>
+      <div class="ai-block">
+        <div class="ai-block-title">Core Audience Summary</div>
+        <div class="ai-summary"><p id="aiSummary"></p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ STRATEGIST PANEL ═══ -->
+<div class="panel" id="panel-strategist">
+  <div id="stratEmpty" class="strat-empty">
+    <p class="strat-empty-text">Validate an idea first — then come here to refine it,<br>uncover objections, and build an irresistible offer.</p>
+  </div>
+  <div id="stratContent" style="display:none">
+    <div class="eyebrow">Strategist</div>
+    <h2 class="section-title" style="font-size:clamp(28px,4vw,44px)">Build an offer<br><em>no one can say no to</em></h2>
+
+    <div class="strat-idea-bar">
+      <span class="strat-idea-text" id="stratIdeaText"></span>
+      <span class="strat-verdict-badge" id="stratVerdictBadge"></span>
+    </div>
+
+    <div class="stages">
+
+      <!-- Stage 1: Refine -->
+      <div class="stage" id="stage1">
+        <div class="stage-header" onclick="toggleStage(1)">
+          <div class="stage-header-left">
+            <span class="stage-num">01</span>
+            <span class="stage-name">Refine the Idea</span>
+          </div>
+          <span class="stage-status active" id="stage1Status">In Progress</span>
+        </div>
+        <div class="stage-body open" id="stage1Body">
+          <p class="body-text" style="margin-bottom:20px;font-size:14px">Chat with the strategist to sharpen your idea, pick the best angle, define your audience, and get clear on what you're building before moving on.</p>
+          <div class="chat-messages" id="refineMessages">
+            <div class="chat-msg assistant"><div class="chat-bubble">I've reviewed your validation report. Let's refine your idea into something precise. What angle are you leaning towards — or would you like me to recommend the strongest one based on the research?</div></div>
+          </div>
+          <div class="chat-input-row">
+            <textarea class="chat-textarea" id="refineInput" rows="1" placeholder="Ask anything to refine your idea..." onkeydown="handleKey(event,'refine')"></textarea>
+            <button class="chat-send" id="refineSendBtn" onclick="sendChat('refine')">↑</button>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px">
+            <button class="btn-primary" onclick="completeStage1()" id="stage1DoneBtn">Idea Refined — Find Objections →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 2: Objections -->
+      <div class="stage" id="stage2">
+        <div class="stage-header" onclick="toggleStage(2)">
+          <div class="stage-header-left">
+            <span class="stage-num">02</span>
+            <span class="stage-name">Discover All Objections</span>
+          </div>
+          <span class="stage-status locked" id="stage2Status">Locked</span>
+        </div>
+        <div class="stage-body" id="stage2Body">
+          <p class="body-text" style="margin-bottom:20px;font-size:14px">Every reason your audience might say no — nothing missing. The AI researches real objections people have for products like yours.</p>
+          <div id="objectionsResult" style="display:none">
+            <div class="objections-list" id="objectionsList"></div>
+          </div>
+          <div id="objectionsLoading" style="display:none;margin-bottom:20px">
+            <div class="loading-title">Researching objections <span class="pulse-dot"></span></div>
+          </div>
+          <button class="btn-primary" id="findObjectionsBtn" onclick="findObjections()">Research All Objections →</button>
+        </div>
+      </div>
+
+      <!-- Stage 3: Value Stack -->
+      <div class="stage" id="stage3">
+        <div class="stage-header" onclick="toggleStage(3)">
+          <div class="stage-header-left">
+            <span class="stage-num">03</span>
+            <span class="stage-name">Build the Value Stack</span>
+          </div>
+          <span class="stage-status locked" id="stage3Status">Locked</span>
+        </div>
+        <div class="stage-body" id="stage3Body">
+          <p class="body-text" style="margin-bottom:20px;font-size:14px">Every objection becomes a bonus or feature that eliminates the hesitation. The result is an offer so complete, saying no feels irrational.</p>
+          <div id="valueStackResult" style="display:none">
+            <div class="value-stack-list" id="valueStackList"></div>
+          </div>
+          <div id="valueStackLoading" style="display:none;margin-bottom:20px">
+            <div class="loading-title">Building value stack <span class="pulse-dot"></span></div>
+          </div>
+          <button class="btn-primary" id="buildStackBtn" onclick="buildValueStack()">Build Value Stack →</button>
+        </div>
+      </div>
+
+      <!-- Stage 4: Final Offer -->
+      <div class="stage" id="stage4">
+        <div class="stage-header" onclick="toggleStage(4)">
+          <div class="stage-header-left">
+            <span class="stage-num">04</span>
+            <span class="stage-name">The Complete Offer</span>
+          </div>
+          <span class="stage-status locked" id="stage4Status">Locked</span>
+        </div>
+        <div class="stage-body" id="stage4Body">
+          <p class="body-text" style="margin-bottom:20px;font-size:14px">Your complete, irresistible offer — named, positioned, and ready to sell.</p>
+          <div id="offerResult" style="display:none">
+            <div class="offer-box" id="offerBox"></div>
+          </div>
+          <div id="offerLoading" style="display:none;margin-bottom:20px">
+            <div class="loading-title">Assembling your offer <span class="pulse-dot"></span></div>
+          </div>
+          <button class="btn-primary" id="buildOfferBtn" onclick="buildFinalOffer()">Generate Complete Offer →</button>
+
+          <!-- Finalise section — appears after offer is generated -->
+          <div class="finalise-section" id="finaliseSection" style="display:none">
+            <div class="finalise-title">Ready to build?</div>
+            <p class="finalise-sub">Your offer is complete. Review it above. When you are satisfied, finalise it — this locks your offer and hands everything over to the Build section where your product will be written word by word, in your audience's language.</p>
+            <button class="btn-finalise" id="finaliseBtn" onclick="finaliseOffer()">Finalise Offer & Move to Build →</button>
+            <div class="finalise-done" id="finaliseDone" style="display:none">
+              <span class="finalise-done-text">✓ Offer finalised — Build section is now unlocked</span>
+              <button class="btn-primary" onclick="switchTab('build')" style="padding:10px 20px;font-size:11px">Go to Build →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ BUILD PANEL ═══ -->
+<div class="panel" id="panel-build">
+  <div id="buildLocked" class="strat-empty">
+    <p class="strat-empty-text">Complete the Strategist and finalise your offer<br>before moving to Build.</p>
+  </div>
+  <div id="buildReady" style="display:none">
+    <div class="eyebrow">Build</div>
+    <h2 class="section-title" style="font-size:clamp(28px,4vw,44px)">Build your product<br><em>from the inside out</em></h2>
+
+    <!-- Offer Handoff Summary -->
+    <div class="offer-handoff-box" id="offerHandoffBox">
+      <div class="offer-handoff-label">Your Finalised Offer</div>
+      <div class="offer-handoff-content" id="offerHandoffContent"></div>
+    </div>
+
+    <!-- Build Stages -->
+    <div class="stages" style="margin-top:36px">
+
+      <!-- Step 1: Blueprint -->
+      <div class="stage" id="bstage1">
+        <div class="stage-header" onclick="toggleBuildStage(1)">
+          <div class="stage-header-left">
+            <span class="stage-num">01</span>
+            <span class="stage-name">Generate Blueprint</span>
+          </div>
+          <span class="stage-status active" id="bstage1Status">Ready</span>
+        </div>
+        <div class="stage-body open" id="bstage1Body">
+          <p class="body-text" style="margin-bottom:20px;font-size:14px">The tool reads your finalised offer and audience intelligence map and generates a complete product blueprint — format, emotional arc, every chapter mapped, language guide, and product experience. You review and approve before a single word is written.</p>
+          <div id="blueprintLoading" style="display:none;margin-bottom:20px">
+            <div class="loading-title">Generating blueprint <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="blueprintLog"></div>
+          </div>
+          <div id="blueprintResult" style="display:none">
+            <div class="blueprint-box" id="blueprintBox"></div>
+            <div style="margin-top:24px;padding:20px 24px;border:1px solid rgba(0,217,139,.25);border-radius:4px;background:rgba(0,217,139,.03)">
+              <p class="body-text" style="font-size:14px;margin-bottom:16px">Review the blueprint carefully. When you are satisfied, approve it to begin writing.</p>
+              <div style="display:flex;gap:10px;align-items:center">
+                <button class="btn-finalise" id="approveBlueprintBtn" onclick="approveBlueprint()">Approve Blueprint — Begin Writing →</button>
+                <button class="btn-ghost" onclick="regenerateBlueprint()">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="generateBlueprintBtn" onclick="generateBlueprint()">Generate Blueprint →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Write Chapters -->
+      <div class="stage" id="bstage2">
+        <div class="stage-header" onclick="toggleBuildStage(2)">
+          <div class="stage-header-left">
+            <span class="stage-num">02</span>
+            <span class="stage-name">Write Chapter by Chapter</span>
+          </div>
+          <span class="stage-status locked" id="bstage2Status">Locked</span>
+        </div>
+        <div class="stage-body" id="bstage2Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">One chapter at a time. You read, refine if needed, approve, and move to the next. Every chapter written in your audience's language, around their emotions, delivering exactly what was promised in the offer.</p>
+          <div id="chapterProgress" style="display:none;margin-bottom:20px">
+            <div class="chapter-progress-bar" id="chapterProgressBar"></div>
+          </div>
+          <div id="chaptersContainer"></div>
+          <div id="currentChapterArea" style="display:none">
+            <div id="chapterLoading" style="display:none;margin-bottom:20px">
+              <div class="loading-title">Writing chapter <span class="pulse-dot"></span></div>
+              <div class="progress-log" id="chapterLog"></div>
+            </div>
+            <div id="chapterOutput" style="display:none">
+              <div class="chapter-output-box">
+                <div class="chapter-output-header">
+                  <div class="chapter-output-title" id="chapterOutputTitle"></div>
+                  <div class="chapter-writer-note" id="chapterWriterNote"></div>
+                </div>
+                <div class="chapter-output-body" id="chapterOutputBody"></div>
+              </div>
+              <div style="margin-top:20px;padding:20px 24px;border:1px solid var(--border);border-radius:4px">
+                <p class="body-text" style="font-size:13px;margin-bottom:14px">Read the chapter above and the writer note. Approve to continue or request a rewrite.</p>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                  <button class="btn-finalise" id="approveChapterBtn" onclick="approveChapter()">Approve & Write Next Chapter →</button>
+                  <button class="btn-ghost" id="rewriteChapterBtn" onclick="rewriteChapter()">Rewrite This Chapter</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary" id="writeChapterBtn" onclick="writeNextChapter()" style="display:none">Write Chapter →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Complete Product -->
+      <div class="stage" id="bstage3">
+        <div class="stage-header" onclick="toggleBuildStage(3)">
+          <div class="stage-header-left">
+            <span class="stage-num">03</span>
+            <span class="stage-name">Complete Product</span>
+          </div>
+          <span class="stage-status locked" id="bstage3Status">Locked</span>
+        </div>
+        <div class="stage-body" id="bstage3Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">All chapters written and approved. Your complete product assembled and ready.</p>
+          <div id="completeProductResult" style="display:none">
+            <div class="complete-product-box" id="completeProductBox"></div>
+            <div style="margin-top:20px;display:flex;gap:10px">
+              <button class="btn-finalise" onclick="exportProduct()">Export Complete Product →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ SELL PANEL ═══ -->
+<div class="panel" id="panel-sell">
+
+  <div id="sellLocked" class="sell-locked">
+    <p>Complete the Build section and export your product<br>before moving to Sell.</p>
+    <button class="btn-ghost" onclick="switchTab('build')">← Go to Build</button>
+  </div>
+
+  <div id="sellReady" class="sell-ready">
+    <div class="eyebrow">Sell</div>
+    <h2 class="section-title" style="font-size:clamp(28px,4vw,44px)">Take your product<br><em>to market</em></h2>
+
+    <div class="stages">
+
+      <!-- SELL STAGE 1: Sales Strategy -->
+      <div class="stage" id="sstage1">
+        <div class="stage-header" onclick="toggleSellStage(1)">
+          <div class="stage-header-left"><span class="stage-num">01</span><span class="stage-name">Sales Strategy</span></div>
+          <span class="stage-status active" id="sstage1Status">Ready</span>
+        </div>
+        <div class="stage-body open" id="sstage1Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">Before a single asset is written, the tool reads everything it knows about your audience and produces a complete sales strategy — how they like to be sold to, what builds trust, what repels them, the right platform, message length, urgency levers, objection handling, and the full sales sequence.</p>
+          <div class="loading" id="ss1Loading" style="display:none">
+            <div class="loading-title">Building sales strategy <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="ss1Log"></div>
+          </div>
+          <div id="ss1Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Sales Strategy</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss1Output')">Copy</button></div>
+              <div class="sell-output-body" id="ss1Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Review the strategy carefully. Every sales decision downstream reflects it. When satisfied, approve to unlock the Sales Page.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveSellStage(1)">Approve Strategy — Unlock Sales Page →</button>
+                <button class="btn-ghost" onclick="rerunSellStage(1)">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="ss1Btn" onclick="runSalesStrategy()">Generate Sales Strategy →</button>
+        </div>
+      </div>
+
+      <!-- SELL STAGE 2: Sales Page -->
+      <div class="stage" id="sstage2">
+        <div class="stage-header" onclick="toggleSellStage(2)">
+          <div class="stage-header-left"><span class="stage-num">02</span><span class="stage-name">Sales Page</span></div>
+          <span class="stage-status locked" id="sstage2Status">Locked</span>
+        </div>
+        <div class="stage-body" id="sstage2Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">A complete sales page written entirely from audience intelligence and the sales strategy. Headline options, opening, problem, agitation, solution, what is inside, proof section, objection handling, offer stack, call to action, and closing argument.</p>
+          <div class="loading" id="ss2Loading" style="display:none">
+            <div class="loading-title">Writing sales page <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="ss2Log"></div>
+          </div>
+          <div id="ss2Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Sales Page</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss2Output')">Copy</button></div>
+              <div class="sell-output-body" id="ss2Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Review the complete sales page and writer note. When satisfied, approve to unlock Ad Variations.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveSellStage(2)">Approve Sales Page — Unlock Ad Variations →</button>
+                <button class="btn-ghost" onclick="rerunSellStage(2)">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="ss2Btn" onclick="runSalesPage()" style="display:none">Write Sales Page →</button>
+        </div>
+      </div>
+
+
+      <!-- SELL STAGE 3: Ad Intelligence Research -->
+      <div class="stage" id="sstage3">
+        <div class="stage-header" onclick="toggleSellStage(3)">
+          <div class="stage-header-left"><span class="stage-num">03</span><span class="stage-name">Ad Intelligence Research</span></div>
+          <span class="stage-status locked" id="sstage3Status">Locked</span>
+        </div>
+        <div class="stage-body" id="sstage3Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">Before writing a single ad variation, the tool researches what is already working in this niche. It searches the Facebook Ad Library and publicly visible ad content to find convergence — the same angles, hooks, formats and creative approaches appearing independently across multiple advertisers. Convergence is proof the market has already validated something. Every variation built after this will be rooted in both market evidence and audience intelligence simultaneously.</p>
+          <div class="loading" id="ss3Loading" style="display:none">
+            <div class="loading-title">Researching active advertisers in this niche <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="ss3Log"></div>
+          </div>
+          <div id="ss3Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Ad Intelligence Research</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss3Output')">Copy</button></div>
+              <div class="sell-output-body" id="ss3Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Review the full intelligence report — angle convergence, hook patterns, creative format analysis, language validated by the market, and gap opportunities. When satisfied, approve to unlock Ad Variations which will build directly from this intelligence.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveSellStage(3)">Approve Intelligence — Unlock Ad Variations →</button>
+                <button class="btn-ghost" onclick="rerunSellStage(3)">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="ss3Btn" onclick="runAdIntelligence()" style="display:none">Research Working Ads →</button>
+        </div>
+      </div>
+
+      <!-- SELL STAGE 4: Ad Variations -->
+      <div class="stage" id="sstage4">
+        <div class="stage-header" onclick="toggleSellStage(3)">
+          <div class="stage-header-left"><span class="stage-num">04</span><span class="stage-name">Ad Variations</span></div>
+          <span class="stage-status locked" id="sstage4Status">Locked</span>
+        </div>
+        <div class="stage-body" id="sstage4Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">Up to 200 ad variations built entirely from audience language and the sales strategy. Format recommendation derived from where this audience lives. Angle bank extracted from real research. Variations clustered by angle, ranked by effectiveness and production effort. Testing roadmap included.</p>
+          <div class="loading" id="ss4Loading" style="display:none">
+            <div class="loading-title">Generating ad variations <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="ss4Log"></div>
+          </div>
+          <div id="ss4Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Ad Variations</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss4Output')">Copy</button></div>
+              <div class="sell-output-body" id="ss4Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Review the format recommendation, angle bank and variations. Run your tests. Come back with performance data to generate the next stronger round.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveSellStage(5)">Variations Ready — Move to Iteration Loop →</button>
+                <button class="btn-ghost" onclick="rerunSellStage(3)">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="ss4Btn" onclick="runAdVariations()" style="display:none">Generate Ad Variations →</button>
+        </div>
+      </div>
+
+      <!-- SELL STAGE 5: Ad Iteration Loop -->
+      <div class="stage" id="sstage5">
+        <div class="stage-header" onclick="toggleSellStage(4)">
+          <div class="stage-header-left"><span class="stage-num">05</span><span class="stage-name">Ad Iteration Loop</span></div>
+          <span class="stage-status locked" id="sstage5Status">Locked</span>
+        </div>
+        <div class="stage-body" id="sstage5Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">You tested your ads. The market spoke. Bring back what happened — raw metrics, a description of what worked, or both. The tool analyses the winners, extracts the pattern, retires what failed, updates the cumulative learning log, and generates the next stronger round. Each iteration builds on confirmed market intelligence.</p>
+          <div class="iteration-count" id="iterationCount">Iteration 0 — No data yet</div>
+          <div id="ss5Input" style="display:none">
+            <div class="field-label" style="margin-bottom:8px">Performance Data</div>
+            <textarea class="iteration-input" id="performanceData" placeholder="Paste raw metrics, describe what happened, or both. E.g. 'Ad 3 got 4.2% CTR vs 0.8% average. Ad 7 and 12 also performed well — both used the sleep deprivation angle. Ads 1, 2, 5 got almost no clicks. The shorter variations consistently outperformed long form...'"></textarea>
+            <div class="loading" id="ss5Loading" style="display:none">
+              <div class="loading-title">Analysing performance and generating next round <span class="pulse-dot"></span></div>
+              <div class="progress-log" id="ss5Log"></div>
+            </div>
+            <div id="ss5Result" style="display:none">
+              <div class="sell-output-box">
+                <div class="sell-output-header"><span class="sell-output-title" id="ss5OutputTitle">Iteration 1</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss5Output')">Copy</button></div>
+                <div class="sell-output-body" id="ss5Output"></div>
+              </div>
+              <div class="sell-approve-box">
+                <p>Review the analysis, winning DNA, updated learning log and next round variations. Test them. Come back with more data.</p>
+                <div class="sell-approve-row">
+                  <button class="btn-finalise" onclick="runAnotherIteration()">Run Another Iteration →</button>
+                  <button class="btn-ghost" onclick="approveSellStage(5)">Move to Backend Architecture →</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary" id="ss5Btn" onclick="runAdIteration()">Analyse & Generate Next Round →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SELL STAGE 6: Backend Architecture -->
+      <div class="stage" id="sstage6">
+        <div class="stage-header" onclick="toggleSellStage(5)">
+          <div class="stage-header-left"><span class="stage-num">06</span><span class="stage-name">Backend Architecture</span></div>
+          <span class="stage-status locked" id="sstage6Status">Locked</span>
+        </div>
+        <div class="stage-body" id="sstage6Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">The front end sells. Now build everything that comes after. Downsell for non-buyers. Upsell for buyers. Continuity offer. Deeper backend products. Bundle opportunities. Premium tier. Complete customer journey map. Revenue framework. Every recommendation rooted in the audience problem chain and real market behaviour.</p>
+          <div class="loading" id="ss6Loading" style="display:none">
+            <div class="loading-title">Building backend architecture <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="ss6Log"></div>
+          </div>
+          <div id="ss6Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Backend Architecture</span><button class="sell-stage-complete-btn" onclick="copySellOutput('ss6Output')">Copy</button></div>
+              <div class="sell-output-body" id="ss6Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Your complete business backend. Review the full architecture and customer journey map.</p>
+              <div class="sell-approve-row">
+                <button class="btn-ghost" onclick="rerunSellStage(5)">Regenerate</button>
+                <button class="btn-finalise" onclick="exportSellAssets()">Export All Sell Assets →</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="ss6Btn" onclick="runBackendArchitecture()" style="display:none">Build Backend Architecture →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ SETTINGS PANEL ═══ -->
+<div class="panel" id="panel-settings">
+  <div class="eyebrow">Settings</div>
+  <h2 class="section-title" style="font-size:clamp(24px,3.5vw,36px);margin-bottom:8px">Keys & Connections</h2>
+  <p class="section-sub" style="margin-bottom:36px">Configure your API key and database connection. Both are required for the tool to work fully.</p>
+
+  <div class="settings-grid">
+
+    <div class="settings-card">
+      <div class="settings-card-title">Anthropic API Key</div>
+      <div class="settings-card-sub">Powers all AI — validation, audience intelligence, strategist, build, and sell. Required.</div>
+      <input type="password" class="settings-input" id="settingsAnthropicKey" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+      <button class="btn-test" id="testAnthropicBtn" onclick="testAnthropicKey()">Test Connection</button>
+      <div class="settings-status">
+        <div class="status-dot idle" id="anthropicDot"></div>
+        <span class="status-text" id="anthropicStatusText">Not tested</span>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-title">Supabase Database</div>
+      <div class="settings-card-sub">Permanently saves all your sessions — validations, audience intelligence, offer, product, and sell assets. Required for history to persist.</div>
+      <input type="text" class="settings-input" id="settingsSbUrl" placeholder="https://xxxxx.supabase.co" autocomplete="off" spellcheck="false">
+      <input type="password" class="settings-input" id="settingsSbKey" placeholder="sb_publishable_..." autocomplete="off" spellcheck="false">
+      <button class="btn-test" id="testSupabaseBtn" onclick="testSupabaseConnection()">Test Connection</button>
+      <div class="settings-status">
+        <div class="status-dot idle" id="supabaseDot"></div>
+        <span class="status-text" id="supabaseStatusText">Not tested</span>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+  <p style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:12px;line-height:1.7">Keys are stored in your browser and used only to call Anthropic and Supabase directly. They never pass through any other server.</p>
+</div>
+
+<!-- ═══ HISTORY PANEL ═══ -->
+<div class="panel" id="panel-history">
+  <div class="eyebrow">Your Work</div>
+  <h2 class="section-title" style="font-size:clamp(28px,4vw,44px)">All your<br><em>validated ideas</em></h2>
+  <div id="historyGrid" class="history-grid">
+    <div class="history-empty"><p class="history-empty-text">No validations yet.<br>Go to the Validate tab to get started.</p></div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-text">Validate · Personal Demand Intelligence</span>
+  <span class="footer-text">Powered by Claude + Live Web Search</span>
+</footer>
+
+</div><!-- /shell -->
+
+
+
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/history.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/context.js"></script>
+<script src="js/source.js"></script>
+<script src="js/validate.js"></script>
+<script src="js/strategist.js"></script>
+<script src="js/build.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/sell.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
