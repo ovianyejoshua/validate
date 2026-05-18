@@ -563,11 +563,11 @@
 
       <!-- SELL STAGE 4: Ad Variations -->
       <div class="stage" id="sstage4">
-        <div class="stage-header" onclick="toggleSellStage(3)">
+        <div class="stage-header" onclick="toggleSellStage(4)">
           <div class="stage-header-left"><span class="stage-num">04</span><span class="stage-name">Ad Variations</span></div>
           <span class="stage-status locked" id="sstage4Status">Locked</span>
         </div>
-        <div class="stage-body" id="sstage4Body">
+        <div class="stage-body" id="sstage4Body"
           <p class="body-text" style="font-size:14px;margin-bottom:20px">Up to 200 ad variations built entirely from audience language and the sales strategy. Format recommendation derived from where this audience lives. Angle bank extracted from real research. Variations clustered by angle, ranked by effectiveness and production effort. Testing roadmap included.</p>
           <div class="loading" id="ss4Loading" style="display:none">
             <div class="loading-title">Generating ad variations <span class="pulse-dot"></span></div>
@@ -581,8 +581,8 @@
             <div class="sell-approve-box">
               <p>Review the format recommendation, angle bank and variations. Run your tests. Come back with performance data to generate the next stronger round.</p>
               <div class="sell-approve-row">
-                <button class="btn-finalise" onclick="approveSellStage(5)">Variations Ready — Move to Iteration Loop →</button>
-                <button class="btn-ghost" onclick="rerunSellStage(3)">Regenerate</button>
+                <button class="btn-finalise" onclick="approveSellStage(4)">Variations Ready — Move to Iteration Loop →</button>
+                <button class="btn-ghost" onclick="rerunSellStage(4)">Regenerate</button>
               </div>
             </div>
           </div>
@@ -626,7 +626,7 @@
 
       <!-- SELL STAGE 6: Backend Architecture -->
       <div class="stage" id="sstage6">
-        <div class="stage-header" onclick="toggleSellStage(5)">
+        <div class="stage-header" onclick="toggleSellStage(6)">
           <div class="stage-header-left"><span class="stage-num">06</span><span class="stage-name">Backend Architecture</span></div>
           <span class="stage-status locked" id="sstage6Status">Locked</span>
         </div>
@@ -644,7 +644,7 @@
             <div class="sell-approve-box">
               <p>Your complete business backend. Review the full architecture and customer journey map.</p>
               <div class="sell-approve-row">
-                <button class="btn-ghost" onclick="rerunSellStage(5)">Regenerate</button>
+                <button class="btn-ghost" onclick="rerunSellStage(6)">Regenerate</button>
                 <button class="btn-finalise" onclick="exportSellAssets()">Export All Sell Assets →</button>
               </div>
             </div>
