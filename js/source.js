@@ -30,7 +30,7 @@ Every idea must pass all ten criteria:
 9. Word Of Mouth Potential — transformation people naturally share
 10. Repeat Pain — problem recurs or new people keep entering the same painful situation
 
-Surface between 5 and 10 ideas. Never more. Rank from strongest to weakest.
+Surface between 2 and 5 ideas. Never more. Rank from strongest to weakest.
 
 Return ONLY a raw JSON object, no markdown fences:
 {
@@ -112,7 +112,7 @@ async function runIdeaSourcing() {
     : `You have full autonomy. No category specified. Follow the strongest signals you find across the internet — go where genuine pain, underrepresentation and willingness to pay intersect. Do not default to popular or obvious spaces. Hunt specifically for conversations happening loudly in communities that the product market has not yet answered adequately. Research thoroughly across Reddit, YouTube comments, Amazon reviews, Google searches and forums. Surface 5-10 ranked gem candidates. Return only the JSON object.`;
 
   try {
-    const text = await callClaude(SOURCE_SYSTEM, [{ role: 'user', content: userMsg }], true, 8000);
+    const text = await callClaude(SOURCE_SYSTEM, [{ role: 'user', content: userMsg }], true, 5000);
     clearInterval(intv);
     document.getElementById('sourceLoading').style.display = 'none';
 
