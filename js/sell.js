@@ -478,7 +478,7 @@ function runAnotherIteration() {
 // ══════════════════════════════════════
 // SELL STAGE 6 — BACKEND ARCHITECTURE
 // ══════════════════════════════════════
-const SS5_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating the backend architecture until you have reviewed everything.
+const SS6_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start generating the backend architecture until you have reviewed everything.
 
 You are an expert business strategist, digital product architect and direct response marketer. You have been given: full market research, detailed audience intelligence map, refined offer and completed front end product, full sales strategy, and cumulative learning log from ad iterations if available.
 
