@@ -1,4 +1,3 @@
-// ══════════════════════════════════════
 // SOURCE IDEAS — Opus (quality of idea
 // governs the entire downstream investment)
 // ══════════════════════════════════════
