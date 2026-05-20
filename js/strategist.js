@@ -7,6 +7,7 @@ function goToStrategist() {
 // ══════════════════════════════════════
 // STRATEGIST
 // ══════════════════════════════════════
+
 function setupStrategist() {
   if (!currentReport) return;
   document.getElementById('stratEmpty').style.display = 'none';
