@@ -96,3 +96,9 @@ function saveSettings() {
   }
   if (ak) setStatus('anthropic', 'ok', '✓ Saved — test to verify');
 }
+
+@@ -96,19 +96,3 @@ function saveSettings() {
+  }
+  if (ak) setStatus('anthropic', 'ok', '✓ Saved — test to verify');
+}
+
