@@ -185,7 +185,7 @@ async function runSalesStrategy() {
   document.getElementById('ss1Loading').style.display = 'block';
   const intv = startSellLog('ss1Log', SS1_STEPS);
   try {
-    const text = await callClaude(SS1_SYSTEM, [{ role: 'user', content: sellContext() + '\n\nGenerate the complete sales strategy now.' }], false, 6000);
+    const text = await callClaude(SS1_SYSTEM, [{ role: 'user', content: sellContext() + '\n\nGenerate the complete sales strategy now.' }], false, 5000, OPUS);
     clearInterval(intv);
     salesStrategy = text;
     document.getElementById('ss1Output').textContent = text;
@@ -257,7 +257,7 @@ async function runSalesPage() {
   const intv = startSellLog('ss2Log', SS2_STEPS);
   const context = sellContext() + '\n\nSALES STRATEGY:\n' + (salesStrategy || '');
   try {
-    const text = await callClaude(SS2_SYSTEM, [{ role: 'user', content: context + '\n\nWrite the complete sales page now.' }], false, 8000);
+    const text = await callClaude(SS2_SYSTEM, [{ role: 'user', content: context + '\n\nWrite the complete sales page now.' }], false, 4000, SONNET);
     clearInterval(intv);
     salesPage = text;
     document.getElementById('ss2Output').textContent = text;
@@ -374,7 +374,7 @@ async function runAdIntelligence() {
   const aiPart = audienceIntel ? '\n\nAUDIENCE INTELLIGENCE:\n' + aiSlice('language','emotional','behaviour','implications','summary') : '';
   const context = baseContext() + aiPart + '\n\nSALES STRATEGY:\n' + (salesStrategy || '(Not yet generated)');
   try {
-    const text = await callClaude(SS3_SYSTEM, [{ role: 'user', content: context + '\n\nResearch active advertisers in this niche and produce the complete ad intelligence report now.' }], true, 8000);
+    const text = await callClaude(SS3_SYSTEM, [{ role: 'user', content: context + '\n\nResearch active advertisers in this niche and produce the complete ad intelligence report now.' }], true, 6000, OPUS);
     clearInterval(intv);
     adIntelligence = text;
     document.getElementById('ss3Output').textContent = text;
@@ -396,7 +396,7 @@ async function runAdVariations() {
   const intv = startSellLog('ss4Log', SS_AV_STEPS);
   const context = sellContext() + '\n\nSALES STRATEGY:\n' + (salesStrategy||'') + '\n\nSALES PAGE:\n' + (salesPage||'');
   try {
-    const text = await callClaude(SS_AV_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete ad variation arsenal now.' }], false, 8000);
+    const text = await callClaude(SS_AV_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete ad variation arsenal now.' }], false, 6000, SONNET);
     clearInterval(intv);
     adVariations = text;
     document.getElementById('ss4Output').textContent = text;
@@ -459,7 +459,7 @@ async function runAdIteration() {
     + '\n\nPERFORMANCE DATA FROM TESTING:\n' + perfData
     + `\n\nThis is iteration ${iterNum}. Analyse, extract winning DNA, update cumulative log, generate next round.`;
   try {
-    const text = await callClaude(SS5_SYSTEM, [{ role: 'user', content: context }], false, 8000);
+    const text = await callClaude(SS5_SYSTEM, [{ role: 'user', content: context }], false, 8000, SONNET);
     clearInterval(intv);
     adIterations.push({ iteration: iterNum, data: perfData, result: text });
     // Extract and update cumulative learning log
@@ -541,7 +541,7 @@ async function runBackendArchitecture() {
     + '\n\nSALES STRATEGY:\n' + (salesStrategy||'')
     + (cumulativeLearningLog ? '\n\nCUMULATIVE LEARNING LOG FROM AD ITERATIONS:\n' + cumulativeLearningLog : '');
   try {
-    const text = await callClaude(SS6_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete backend architecture now.' }], false, 8000);
+    const text = await callClaude(SS6_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete backend architecture now.' }], false, 6000, OPUS);
     clearInterval(intv);
     backendArchitecture = text;
     document.getElementById('ss6Output').textContent = text;
