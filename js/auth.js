@@ -294,10 +294,3 @@ async function saveAdminNote(sessionId, userId) {
     setTimeout(() => { btn.textContent = 'Save Note'; btn.style.color = ''; }, 2000);
   } catch(e) { alert('Error saving note: ' + e.message); }
 }
-
-// ══════════════════════════════════════
-// IDEA SOURCING
-// ══════════════════════════════════════
-let selectedMethod = null;
-let sourcedIdeas = null;
-
