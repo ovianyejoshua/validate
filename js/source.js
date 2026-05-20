@@ -241,8 +241,3 @@ function selectIdea(index) {
   // Scroll to textarea
   document.getElementById('ideaInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-
-// ══════════════════════════════════════
-// SMART TOKEN OPTIMIZATION
-// ══════════════════════════════════════
-// Each downstream section only receives the audience intelligence sections it needs
