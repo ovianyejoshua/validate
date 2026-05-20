@@ -96,19 +96,3 @@ function saveSettings() {
   }
   if (ak) setStatus('anthropic', 'ok', '✓ Saved — test to verify');
 }
-
-// ══════════════════════════════════════
-// SELL STATE
-// ══════════════════════════════════════
-let sellStagesUnlocked = [1];
-let salesStrategy = null;
-let salesPage = null;
-let adIntelligence = null;
-let adVariations = null;
-let adIterations = [];
-let cumulativeLearningLog = null;
-let backendArchitecture = null;
-
-// ══════════════════════════════════════
-// SELL UI HELPERS
-// ══════════════════════════════════════
