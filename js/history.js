@@ -1,3 +1,6 @@
+// ══════════════════════════════════════
+// HISTORY BAR (top quick access)
+// ═════════════════════════════════════
 async function loadAllHistory() {
   const items = await dbLoadAll();
   renderHistoryBar(items);
