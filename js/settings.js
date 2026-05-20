@@ -2,7 +2,6 @@
 // ══════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════
-
 function renderSettingsStatus() {
   const ak = localStorage.getItem('v_ak') || '';
   const sbUrl = localStorage.getItem('v_sb_url') || SB_URL;
