@@ -1,3 +1,8 @@
+//═════════════════════════════════════
+// SMART TOKEN OPTIMIZATION
+// ══════════════════════════════════════
+// Each downstream section only receives the audience intelligence sections it needs
+
 function aiSlice(...keys) {
   if (!audienceIntel) return '';
   const map = {
