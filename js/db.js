@@ -45,7 +45,3 @@ async function saveCurrentState() {
     updated_at: new Date().toISOString(),
   });
 }
-
-// ══════════════════════════════════════
-// HISTORY BAR (top quick access)
-// ══════════════════════════════════════
