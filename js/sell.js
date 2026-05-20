@@ -1,6 +1,7 @@
 // ══════════════════════════════════════
 // SELL STATE
 // ══════════════════════════════════════
+
 let sellStagesUnlocked = [1];
 let salesStrategy = null;
 let salesPage = null;
@@ -13,6 +14,7 @@ let backendArchitecture = null;
 // ══════════════════════════════════════
 // SELL UI HELPERS
 // ══════════════════════════════════════
+
 function toggleSellStage(n) {
   if (!sellStagesUnlocked.includes(n)) return;
   document.getElementById('sstage' + n + 'Body').classList.toggle('open');
