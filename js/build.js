@@ -1,3 +1,29 @@
+
+// ══════════════════════════════════════
+// BUILD SECTION
+// ══════════════════════════════════════
+let blueprint = null;
+let approvedBlueprint = null;
+let chapters = []; // { number, title, brief, content, writerNote, approved }
+let currentChapterIndex = 0;
+let buildStagesUnlocked = [1];
+
+const BLUEPRINT_STEPS = [
+  'Reading your finalised offer...',
+  'Studying the audience intelligence map...',
+  'Mapping the emotional arc...',
+  'Designing chapter structure...',
+  'Building the language guide...',
+  'Assembling the complete blueprint...',
+];
+
+const CHAPTER_STEPS = [
+  'Reviewing emotional arc and chapter brief...',
+  'Studying previously written chapters...',
+  'Writing from audience intelligence...',
+  'Completing the chapter...',
+];
+
 function toggleBuildStage(n) {
   if (!buildStagesUnlocked.includes(n)) return;
   document.getElementById('bstage'+n+'Body').classList.toggle('open');
