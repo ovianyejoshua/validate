@@ -59,7 +59,3 @@ function switchTab(name) {
   if (name === 'history') loadAllHistory();
   if (name === 'settings') renderSettingsStatus();
 }
-
-// ══════════════════════════════════════
-// DATABASE
-// ══════════════════════════════════════
