@@ -3,7 +3,7 @@
 // ══════════════════════════════════════
 
 // Model constants
-const OPUS = 'claude-opus-4-6';
+const OPUS = 'claude-opus-4-7';
 const SONNET = 'claude-sonnet-4-6';
 
 // Universal conciseness instruction appended to every system prompt
