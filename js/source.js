@@ -1,7 +1,9 @@
 // ══════════════════════════════════════
-// SOURCE IDEAS — Opus (quality of idea
-// governs the entire downstream investment)
+// IDEA SOURCING
 // ══════════════════════════════════════
+let selectedMethod = null;
+let sourcedIdeas = null;
+
 function selectMethod(n) {
   selectedMethod = n;
   document.getElementById('methodCard1').classList.toggle('selected', n === 1);
