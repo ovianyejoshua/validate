@@ -1,12 +1,3 @@
-function goToStrategist() {
-  switchTab('strategist');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ══════════════════════════════════════
-// STRATEGIST
-// ══════════════════════════════════════
-
 
 // ══════════════════════════════════════
 // AUTH + IDENTITY SYSTEM
