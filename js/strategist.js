@@ -1,3 +1,12 @@
+
+function goToStrategist() {
+  switchTab('strategist');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════
+// STRATEGIST
+// ══════════════════════════════════════
 function setupStrategist() {
   if (!currentReport) return;
   document.getElementById('stratEmpty').style.display = 'none';
