@@ -1,3 +1,10 @@
+// ══════════════════════════════════════
+// SOURCE IDEAS — Opus (quality of idea
+// governs the entire downstream investment)
+// ══════════════════════════════════════
+let selectedMethod = null;
+let sourcedIdeas = null;
+
 function selectMethod(n) {
   selectedMethod = n;
   document.getElementById('methodCard1').classList.toggle('selected', n === 1);
@@ -10,74 +17,64 @@ function selectMethod(n) {
     : 'Ready — the tool will follow the strongest signals';
 }
 
-const SOURCE_SYSTEM = `You are an expert market researcher, digital product strategist and opportunity analyst with deep expertise in finding underserved, high demand niches for digital products. Your job is to surface genuinely great ideas — not obvious ones, not trending ones, not crowded ones. Specific, niche, fresh opportunities where real pain exists, money is already moving and the product market has not caught up yet.
+const SOURCE_SYSTEM = `You are an expert market researcher and digital product strategist. Find underserved, high demand niches for digital products — specific, niche, fresh opportunities where real pain exists, money is already moving and the product market has not caught up.
 
-This is the most important research task in the entire tool. The quality of everything that follows depends entirely on the quality of the ideas you surface here. Do not rush. Do not settle for obvious. Hunt for gems.
+Research thoroughly: Reddit (recurring frustrations, unanswered questions), YouTube comments (what videos failed to deliver), Amazon and Gumroad 1-3 star reviews (what existing products miss), Google search suggestions, Facebook groups and forums, Quora repeated questions.
 
-Research these sources thoroughly: Reddit subreddits where people vent and ask for help, YouTube comments where people say what the video failed to give them, Amazon and Gumroad one/two/three star reviews of existing products, Google search suggestions and related searches, Facebook groups and online forums, Quora questions asked repeatedly with unsatisfying answers.
-
-Read what you find carefully before forming any ideas. The ideas must emerge from the research. Let the pain lead you to the idea.
+Read everything before forming ideas. Let pain lead to the idea. Never form ideas first and confirm after.
 
 Every idea must pass all ten criteria:
-1. Hungry Audience — clearly identifiable group actively feeling this pain right now
-2. Willingness To Pay — money already moving, people buying even inadequate solutions
+1. Hungry Audience — identifiable group actively feeling this pain now
+2. Willingness To Pay — money already moving in this space
 3. Gap — existing solutions fail this audience in a specific demonstrable way
-4. Accessibility — can be built as a written digital product without requiring credentials or technical expertise
+4. Accessibility — buildable as a written digital product, no credentials required
 5. Specificity — narrow enough to own, niche within a niche
-6. Urgency — pain is present tense, they need a solution now
-7. Emotional Intensity — deep suffering not mild inconvenience
-8. Underrepresentation — conversation loud in communities but quiet in product market
+6. Urgency — pain is present tense, needed now
+7. Emotional Intensity — genuine suffering, not mild inconvenience
+8. Underrepresentation — loud community conversation, thin product market
 9. Word Of Mouth Potential — transformation people naturally share
-10. Repeat Pain — problem recurs or new people keep entering the same painful situation
+10. Repeat Pain — recurring problem or new people constantly entering the same situation
 
-Surface between 5 and 10 ideas. Never more. Rank from strongest to weakest.
+Surface 5-10 ideas. Rank strongest to weakest. Be precise and concise — one sentence of evidence per criterion, not a paragraph. Depth comes from precision not length.
 
-Return ONLY a raw JSON object, no markdown fences:
+Return ONLY raw JSON, no markdown:
 {
   "ideas": [
     {
       "rank": 1,
       "title": "Specific niche idea stated precisely",
-      "pain": "The pain in the audience's own words and emotional register",
-      "audience": "Who exactly this is for — named precisely",
-      "oneLiner": "The idea distilled to its sharpest most specific form",
-      "gemVerdict": "strong gem" | "promising candidate" | "proceed with caution",
-      "gemAssessment": "Honest paragraph on overall strength, where evidence is strongest, where caution is warranted",
+      "pain": "The pain in the audience's own words — 2 sentences max",
+      "audience": "Who exactly — named precisely in one sentence",
+      "oneLiner": "The idea at its sharpest",
+      "gemVerdict": "strong gem|promising candidate|proceed with caution",
+      "gemAssessment": "2-3 sentences: what makes it strong, where caution is warranted, honest verdict",
       "criteria": {
-        "hungryAudience": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "willingnessToPay": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "gap": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "accessibility": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "specificity": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "urgency": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "emotionalIntensity": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "underrepresentation": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "wordOfMouth": { "evidence": "what research found", "confidence": "high|medium|low" },
-        "repeatPain": { "evidence": "what research found", "confidence": "high|medium|low" }
+        "hungryAudience": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "willingnessToPay": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "gap": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "accessibility": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "specificity": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "urgency": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "emotionalIntensity": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "underrepresentation": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "wordOfMouth": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" },
+        "repeatPain": { "evidence": "One precise sentence from research", "confidence": "high|medium|low" }
       },
       "criteriaScores": {
-        "hungryAudience": 8,
-        "willingnessToPay": 7,
-        "gap": 9,
-        "accessibility": 10,
-        "specificity": 8,
-        "urgency": 9,
-        "emotionalIntensity": 8,
-        "underrepresentation": 9,
-        "wordOfMouth": 7,
-        "repeatPain": 8,
-        "total": 83
+        "hungryAudience": 8, "willingnessToPay": 7, "gap": 9, "accessibility": 10,
+        "specificity": 8, "urgency": 9, "emotionalIntensity": 8,
+        "underrepresentation": 9, "wordOfMouth": 7, "repeatPain": 8, "total": 83
       }
     }
   ],
-  "huntingNotes": "What the research revealed about the broader landscape, strongest signals, most underrepresented spaces, what would be investigated further"
+  "huntingNotes": "3-5 sentences: strongest signals found, most underrepresented spaces, what warrants further investigation"
 }`;
 
 const SOURCE_STEPS = [
   'Searching Reddit for recurring frustrations...',
-  'Reading YouTube comments for what videos failed to deliver...',
-  'Scanning one and two star reviews on Amazon and Gumroad...',
-  'Following Google search suggestions and related searches...',
+  'Reading YouTube comments...',
+  'Scanning low-rated reviews on Amazon and Gumroad...',
+  'Following Google search suggestions...',
   'Looking for loud conversations with thin product markets...',
   'Evaluating ideas against all ten criteria...',
   'Ranking candidates by evidence strength...',
@@ -96,40 +93,36 @@ async function runIdeaSourcing() {
   document.getElementById('sourceLoading').style.display = 'block';
 
   const logEl = document.getElementById('sourceLog');
-  logEl.innerHTML = '';
-  let i = 0;
-  const intv = setInterval(() => {
-    if (i >= SOURCE_STEPS.length) { clearInterval(intv); return; }
-    logEl.querySelectorAll('.log-line.latest').forEach(el => el.classList.remove('latest'));
-    const line = document.createElement('div');
-    line.className = 'log-line latest';
-    line.textContent = SOURCE_STEPS[i++];
-    logEl.appendChild(line);
-  }, 4000);
+  const intv = startProgress('sourceLog', SOURCE_STEPS, 4000);
 
   const userMsg = method === 1
-    ? `Hunt for underserved digital product ideas within this category: "${category}". Research thoroughly across Reddit, YouTube comments, Amazon reviews, Google searches and forums. Surface 5-10 ranked gem candidates. Return only the JSON object.`
-    : `You have full autonomy. No category specified. Follow the strongest signals you find across the internet — go where genuine pain, underrepresentation and willingness to pay intersect. Do not default to popular or obvious spaces. Hunt specifically for conversations happening loudly in communities that the product market has not yet answered adequately. Research thoroughly across Reddit, YouTube comments, Amazon reviews, Google searches and forums. Surface 5-10 ranked gem candidates. Return only the JSON object.`;
+    ? `Hunt for underserved digital product ideas within: "${category}". Research thoroughly. Surface 5-10 ranked gem candidates. Return only the JSON object.`
+    : `Full autonomy — no category. Follow the strongest signals anywhere on the internet. Go where genuine pain, underrepresentation and willingness to pay intersect. Do not default to obvious spaces. Research thoroughly. Surface 5-10 ranked gem candidates. Return only the JSON object.`;
 
   try {
-    const text = await callClaude(SOURCE_SYSTEM, [{ role: 'user', content: userMsg }], true, 8000);
-    clearInterval(intv);
+    const text = await callClaude(SOURCE_SYSTEM + CONCISE, [{ role: 'user', content: userMsg }], true, 5000, OPUS);
+    stopProgress(intv);
     document.getElementById('sourceLoading').style.display = 'none';
 
-    const clean = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
-    const s = clean.indexOf('{'), e = clean.lastIndexOf('}');
-    if (s < 0 || e < 0) throw new Error('Could not parse sourcing results.');
-    const parsed = JSON.parse(clean.slice(s, e + 1));
+    let parsed;
+    try {
+      parsed = parseJSON(text);
+    } catch(e) {
+      // Fallback — show raw text if JSON parse fails
+      document.getElementById('sourceResults').classList.add('active');
+      document.getElementById('ideaCardsList').innerHTML = `<div style="font-family:var(--mono);font-size:13px;color:var(--muted);padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:4px;white-space:pre-wrap;line-height:1.7">${esc(text)}</div>`;
+      document.getElementById('sourceBtn').disabled = false;
+      return;
+    }
 
     sourcedIdeas = parsed;
     renderSourcedIdeas(parsed);
 
-    // Save to supabase if connected
-    if (db) {
+    if (db && currentUser) {
       try {
         await db.from('idea_sources').upsert({
           id: Date.now().toString(),
-          user_id: currentUser?.id || 'anonymous',
+          user_id: currentUser.id,
           method: method === 1 ? 'category' : 'autonomous',
           category: category || null,
           results: parsed,
@@ -139,7 +132,7 @@ async function runIdeaSourcing() {
     }
 
   } catch(err) {
-    clearInterval(intv);
+    stopProgress(intv);
     document.getElementById('sourceLoading').style.display = 'none';
     document.getElementById('sourceBtn').disabled = false;
     alert('Error during idea sourcing: ' + err.message);
@@ -170,13 +163,12 @@ function renderSourcedIdeas(data) {
     const evidenceHtml = criteriaKeys.map((key, i) => {
       const c = idea.criteria?.[key];
       if (!c) return '';
-      const confCls = c.confidence === 'high' ? 'high' : c.confidence === 'medium' ? 'med' : 'low';
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between">
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between">
           <span>${criteriaShort[i]}. ${key.replace(/([A-Z])/g,' $1').trim()}</span>
           <span style="color:${c.confidence==='high'?'var(--green)':c.confidence==='medium'?'var(--yellow)':'var(--red)'}">${c.confidence}</span>
         </div>
-        <div style="font-family:Georgia,serif;font-size:13px;color:#888;line-height:1.65">${esc(c.evidence)}</div>
+        <div style="font-family:Georgia,serif;font-size:13px;color:#888;line-height:1.6">${esc(c.evidence)}</div>
       </div>`;
     }).join('');
 
@@ -205,7 +197,6 @@ function renderSourcedIdeas(data) {
     list.appendChild(card);
   });
 
-  // Ranking table
   if (data.ideas?.length) {
     const thead = `<tr><th>Rank</th><th>Idea</th><th>Verdict</th><th>Score</th></tr>`;
     const rows = data.ideas.map(idea => `
@@ -220,7 +211,6 @@ function renderSourcedIdeas(data) {
     document.getElementById('rankingTableWrap').style.display = 'block';
   }
 
-  // Hunting notes
   if (data.huntingNotes) {
     document.getElementById('huntingNotesBody').textContent = data.huntingNotes;
     document.getElementById('huntingNotes').style.display = 'block';
@@ -234,10 +224,8 @@ function renderSourcedIdeas(data) {
 function selectIdea(index) {
   const idea = sourcedIdeas?.ideas?.[index];
   if (!idea) return;
-  // Populate the validate tab with this idea
   document.getElementById('ideaInput').value = idea.title + '. ' + idea.oneLiner;
   switchTab('validate');
   document.getElementById('ideaInput').focus();
-  // Scroll to textarea
   document.getElementById('ideaInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
