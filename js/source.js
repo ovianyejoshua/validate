@@ -2,9 +2,6 @@
 // SOURCE IDEAS — Opus (quality of idea
 // governs the entire downstream investment)
 // ══════════════════════════════════════
-let selectedMethod = null;
-let sourcedIdeas = null;
-
 function selectMethod(n) {
   selectedMethod = n;
   document.getElementById('methodCard1').classList.toggle('selected', n === 1);
@@ -17,11 +14,13 @@ function selectMethod(n) {
     : 'Ready — the tool will follow the strongest signals';
 }
 
-const SOURCE_SYSTEM = `You are an expert market researcher and digital product strategist. Find underserved, high demand niches for digital products — specific, niche, fresh opportunities where real pain exists, money is already moving and the product market has not caught up.
+const SOURCE_SYSTEM = `You are an expert market researcher, digital product strategist and opportunity analyst with deep expertise in finding underserved, high demand niches for digital products. Your job is to surface genuinely great ideas — not obvious ones, not trending ones, not crowded ones. Specific, niche, fresh opportunities where real pain exists, money is already moving and the product market has not caught up yet.
 
-Research thoroughly: Reddit (recurring frustrations, unanswered questions), YouTube comments (what videos failed to deliver), Amazon and Gumroad 1-3 star reviews (what existing products miss), Google search suggestions, Facebook groups and forums, Quora repeated questions.
+This is the most important research task in the entire tool. The quality of everything that follows depends entirely on the quality of the ideas you surface here. Do not rush. Do not settle for obvious. Hunt for gems.
 
-Read everything before forming ideas. Let pain lead to the idea. Never form ideas first and confirm after.
+Research these sources thoroughly: Reddit subreddits where people vent and ask for help, YouTube comments where people say what the video failed to give them, Amazon and Gumroad one/two/three star reviews of existing products, Google search suggestions and related searches, Facebook groups and online forums, Quora questions asked repeatedly with unsatisfying answers.
+
+Read what you find carefully before forming any ideas. The ideas must emerge from the research. Let the pain lead you to the idea.
 
 Every idea must pass all ten criteria:
 1. Hungry Audience — identifiable group actively feeling this pain now
@@ -35,7 +34,7 @@ Every idea must pass all ten criteria:
 9. Word Of Mouth Potential — transformation people naturally share
 10. Repeat Pain — recurring problem or new people constantly entering the same situation
 
-Surface 5-10 ideas. Rank strongest to weakest. Be precise and concise — one sentence of evidence per criterion, not a paragraph. Depth comes from precision not length.
+Surface 2-5 ideas. Rank strongest to weakest. Be precise and concise — one sentence of evidence per criterion, not a paragraph. Depth comes from precision not length.
 
 Return ONLY raw JSON, no markdown:
 {
@@ -93,11 +92,18 @@ async function runIdeaSourcing() {
   document.getElementById('sourceLoading').style.display = 'block';
 
   const logEl = document.getElementById('sourceLog');
-  const intv = startProgress('sourceLog', SOURCE_STEPS, 4000);
+  const intv = setInterval(() => {
+    if (i >= SOURCE_STEPS.length) { clearInterval(intv); return; }
+    logEl.querySelectorAll('.log-line.latest').forEach(el => el.classList.remove('latest'));
+    const line = document.createElement('div');
+    line.className = 'log-line latest';
+    line.textContent = SOURCE_STEPS[i++];
+    logEl.appendChild(line);
+  }, 4000);
 
   const userMsg = method === 1
-    ? `Hunt for underserved digital product ideas within: "${category}". Research thoroughly. Surface 5-10 ranked gem candidates. Return only the JSON object.`
-    : `Full autonomy — no category. Follow the strongest signals anywhere on the internet. Go where genuine pain, underrepresentation and willingness to pay intersect. Do not default to obvious spaces. Research thoroughly. Surface 5-10 ranked gem candidates. Return only the JSON object.`;
+    ? `Hunt for underserved digital product ideas within: "${category}". Research thoroughly across Reddit, YouTube comments, Amazon reviews, Google searches and forums. Surface 2-5 ranked gem candidates. Return only the JSON object.`
+    : `You have full autonomy. No category specified. Follow the strongest signals you find across the internet — go where genuine pain, underrepresentation and willingness to pay intersect. Do not default to popular or obvious spaces. Hunt specifically for conversations happening loudly in communities that the product market has not yet answered adequately. Research thoroughly across Reddit, YouTube comments, Amazon reviews, Google searches and forums. Surface 2-5 ranked gem candidates. Return only the JSON object.`;
 
   try {
     const text = await callClaude(SOURCE_SYSTEM + CONCISE, [{ role: 'user', content: userMsg }], true, 5000, OPUS);
@@ -118,6 +124,7 @@ async function runIdeaSourcing() {
     sourcedIdeas = parsed;
     renderSourcedIdeas(parsed);
 
+  // Save to supabase if connected
     if (db && currentUser) {
       try {
         await db.from('idea_sources').upsert({
