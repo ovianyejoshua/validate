@@ -2,6 +2,7 @@
 // ══════════════════════════════════════
 // CONFIG — your keys baked in
 // ══════════════════════════════════════
+
 const ANTHROPIC_KEY = localStorage.getItem('v_ak') || '';
 const SB_URL = 'https://gntswhwivhzgbaahpwqy.supabase.co';
 const SB_KEY = 'sb_publishable_cFtogIiMoTSVSAg0LEg53g_5rJdVopC';
