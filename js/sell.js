@@ -1,3 +1,18 @@
+// ══════════════════════════════════════
+// SELL STATE
+// ══════════════════════════════════════
+let sellStagesUnlocked = [1];
+let salesStrategy = null;
+let salesPage = null;
+let adIntelligence = null;
+let adVariations = null;
+let adIterations = [];
+let cumulativeLearningLog = null;
+let backendArchitecture = null;
+
+// ══════════════════════════════════════
+// SELL UI HELPERS
+// ══════════════════════════════════════
 function toggleSellStage(n) {
   if (!sellStagesUnlocked.includes(n)) return;
   document.getElementById('sstage' + n + 'Body').classList.toggle('open');
@@ -622,7 +637,3 @@ function exportSellAssets() {
   a.download = `sell-assets-${(fo.productName||'product').replace(/[^a-z0-9]/gi,'-')}.txt`;
   a.click();
 }
-
-// ══════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════
