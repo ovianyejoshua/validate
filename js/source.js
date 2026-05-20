@@ -34,7 +34,7 @@ Every idea must pass all ten criteria:
 9. Word Of Mouth Potential — transformation people naturally share
 10. Repeat Pain — recurring problem or new people constantly entering the same situation
 
-Surface 5-10 ideas. Rank strongest to weakest. Be precise and concise — one sentence of evidence per criterion, not a paragraph. Depth comes from precision not length.
+Surface 2-5 ideas. Rank strongest to weakest. Be precise and concise — one sentence of evidence per criterion, not a paragraph. Depth comes from precision not length.
 
 Return ONLY raw JSON, no markdown:
 {
