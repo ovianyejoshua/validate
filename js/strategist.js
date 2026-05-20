@@ -141,7 +141,7 @@ ${reportContext()}
 Be direct, specific, and strategic. Short paragraphs. Use **bold** for key points. Help them sharpen the angle, define the audience precisely, and get clear on exactly what they're building.`;
 
   try {
-    const reply = await callClaude(straPrompt, refineHistory), true, 5000, SONNET;
+    const reply = await callClaude(straPrompt, refineHistory);
     refineHistory.push({ role: 'assistant', content: reply });
     await saveCurrentState();
     document.getElementById(thinkId)?.remove();
