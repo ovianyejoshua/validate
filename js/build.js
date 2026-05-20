@@ -158,7 +158,7 @@ async function generateBlueprint() {
   }, 3500);
 
   try {
-    const text = await callClaude(BLUEPRINT_SYSTEM, [{ role: 'user', content: buildContext() + '\n\nGenerate the complete product blueprint as a JSON object.' }], false, 3000, OPUS);
+    const text = await callClaude(BLUEPRINT_SYSTEM, [{ role: 'user', content: buildContext() + '\n\nGenerate the complete product blueprint as a JSON object.' }], false, 5000, OPUS);
     clearInterval(bpInt);
     blueprint = parseJSON(text);
     renderBlueprint(blueprint);
@@ -365,7 +365,7 @@ Avoid: ${chapterBrief.avoid}`;
   const userMsg = buildContext() + previousChaptersText + '\n\n' + chapterBriefText + '\n\nWrite this chapter now. Return only the JSON object.';
 
   try {
-    const text = await callClaude(CHAPTER_SYSTEM, [{ role: 'user', content: userMsg }], false, 3000, SONNET);
+    const text = await callClaude(CHAPTER_SYSTEM, [{ role: 'user', content: userMsg }], false, 20000, SONNET);
     clearInterval(chInt);
     const parsed = parseJSON(text);
 
