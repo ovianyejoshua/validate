@@ -1,7 +1,6 @@
 // ══════════════════════════════════════
 // IDEA SOURCING
 // ══════════════════════════════════════
-
 let selectedMethod = null;
 let sourcedIdeas = null;
 
