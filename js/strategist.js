@@ -1,12 +1,15 @@
 
+// ══════════════════════════════════════
+// STRATEGIST
+// Sonnet throughout — conversation and
+// structured execution, thinking already
+// done by audience intelligence
+// ══════════════════════════════════════
+
 function goToStrategist() {
   switchTab('strategist');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// ══════════════════════════════════════
-// STRATEGIST
-// ══════════════════════════════════════
 
 function setupStrategist() {
   if (!currentReport) return;
@@ -141,7 +144,7 @@ ${reportContext()}
 Be direct, specific, and strategic. Short paragraphs. Use **bold** for key points. Help them sharpen the angle, define the audience precisely, and get clear on exactly what they're building.`;
 
   try {
-    const reply = await callClaude(straPrompt, refineHistory);
+    const reply = await callClaude(straPrompt, refineHistory, false, 1000, SONNET);
     refineHistory.push({ role: 'assistant', content: reply });
     await saveCurrentState();
     document.getElementById(thinkId)?.remove();
@@ -211,7 +214,7 @@ Return ONLY raw JSON array, no markdown:
   ...
 ]
 
-Return at least 15-20 objections. Be specific to this idea and audience, not generic.`;
+Return at least 15-20 objections. Be specific to this idea and audience, not generic.` + CONCISE;
 
   try {
     const text = await callClaude(Objprompt, [{ role: 'user', content: 'Find all objections for this product idea.' }], true, 5000, SONNET);
@@ -265,10 +268,10 @@ Return ONLY raw JSON array, no markdown:
     "description": "What this is and how it completely neutralises the objection"
   },
   ...
-]`;
+]` + CONCISE;
 
   try {
-    const text = await callClaude(Valueprompt, [{ role: 'user', content: 'Build the value stack.' }, true, 4000, SONNET]);
+    const text = await callClaude(Valueprompt, [{ role: 'user', content: 'Build the value stack.' }, false, 4000, SONNET]);
     let clean = text.replace(/```json\s*/gi,'').replace(/```/g,'').trim();
     const s = clean.indexOf('['), e = clean.lastIndexOf(']');
     valueStack = JSON.parse(clean.slice(s, e+1));
@@ -306,7 +309,7 @@ async function buildFinalOffer() {
   document.getElementById('buildOfferBtn').disabled = true;
   document.getElementById('offerLoading').style.display = 'block';
 
-  const FinalOfferprompt = `You are a world-class copywriter and offer architect. Assemble everything into a complete, irresistible offer.
+  const Offerprompt = `You are a world-class copywriter and offer architect. Assemble everything into a complete, irresistible offer.
 
 ${reportContext()}
 
@@ -329,10 +332,10 @@ Create the complete offer. Return ONLY raw JSON, no markdown:
   "guarantee": "The guarantee you offer",
   "suggestedPrice": "Recommended price with brief reasoning",
   "oneLiner": "The one sentence pitch you'd use to sell this to a cold audience"
-}`;
+}` + CONCISE ;
 
   try {
-    const text = await callClaude(FinalOfferprompt, [{ role: 'user', content: 'Build the final offer.' }], true, 3000, SONNET);
+    const text = await callClaude(Offerprompt, [{ role: 'user', content: 'Build the final offer.' }], false, 3000, SONNET);
     finalOffer = parseJSON(text);
     await saveCurrentState();
     document.getElementById('offerLoading').style.display = 'none';
