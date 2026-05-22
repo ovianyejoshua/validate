@@ -374,3 +374,144 @@ function renderFinalOffer(offer) {
   document.getElementById('offerResult').style.display = 'block';
   document.getElementById('finaliseSection').style.display = 'block';
 }
+
+// ══════════════════════════════════════
+// FINALISE OFFER + BUILD HANDOFF
+// ══════════════════════════════════════
+let finalisedOffer = null;
+
+async function finaliseOffer() {
+  const btn = document.getElementById('finaliseBtn');
+  btn.disabled = true;
+  btn.textContent = 'Finalising...';
+
+  // Build the structured handoff document from everything we have
+  const handoff = {
+    productName: finalOffer?.productName || '',
+    tagline: finalOffer?.tagline || '',
+    targetAudience: finalOffer?.targetAudience || '',
+    corePromise: finalOffer?.corePromise || '',
+    chosenAngle: extractChosenAngle(),
+    coreProduct: {
+      format: finalOffer?.whatIsIncluded?.[0] || '',
+      structure: finalOffer?.whatIsIncluded || [],
+      promise: finalOffer?.corePromise || ''
+    },
+    valueStack: valueStack.map(v => ({
+      bonusName: v.bonusTitle || v.title || '',
+      bonusDescription: v.description || '',
+      objectionItSolves: v.objection || v.objectionAddressed || '',
+      audiencePainItAddresses: v.pain || ''
+    })),
+    bonuses: finalOffer?.bonuses || [],
+    guarantee: finalOffer?.guarantee || '',
+    suggestedPrice: finalOffer?.suggestedPrice || '',
+    oneLiner: finalOffer?.oneLiner || '',
+    completeOffer: buildCompleteOfferParagraph(),
+    audienceLanguage: audienceIntel?.section1?.slice(0, 600) || '',
+    audienceEmotions: audienceIntel?.section2?.slice(0, 600) || '',
+    toneGuide: audienceIntel?.section6?.slice(0, 400) || '',
+    coreAudienceSummary: audienceIntel?.summary || '',
+    objections: objections,
+    finalisedAt: new Date().toISOString()
+  };
+
+  finalisedOffer = handoff;
+
+  // Save to Supabase
+  if (currentId) await dbUpdate(currentId, { finalised_offer: handoff });
+
+  // Unlock Build tab
+  const buildTab = document.getElementById('tab-build');
+  if (buildTab) {
+    buildTab.disabled = false;
+    buildTab.style.opacity = '1';
+    buildTab.style.cursor = 'pointer';
+  }
+
+  // Render handoff in Build panel
+  renderOfferHandoff(handoff);
+
+  // Show done state
+  document.getElementById('finaliseDone').style.display = 'flex';
+  btn.style.display = 'none';
+
+  markStageDone(4);
+  loadAllHistory();
+}
+
+function extractChosenAngle() {
+  // Pull the last assistant message that mentions angle or direction from refine chat
+  const assistantMsgs = refineHistory.filter(m => m.role === 'assistant');
+  if (!assistantMsgs.length) return currentReport?.suggestedAngles?.[0]?.angle || '';
+  // Look for angle mentions in last few messages
+  const recent = assistantMsgs.slice(-3).map(m => m.content).join(' ');
+  const angleMatch = recent.match(/angle[:\s]+([^.\n]{20,120})/i);
+  return angleMatch ? angleMatch[1].trim() : (currentReport?.suggestedAngles?.[0]?.angle || '');
+}
+
+function buildCompleteOfferParagraph() {
+  if (!finalOffer) return '';
+  const bonusList = (finalOffer.bonuses || []).map(b => b.title).join(', ');
+  return `${finalOffer.productName} — ${finalOffer.corePromise} Includes: ${(finalOffer.whatIsIncluded||[]).join(', ')}. Plus bonuses: ${bonusList}. ${finalOffer.guarantee} ${finalOffer.suggestedPrice}.`;
+}
+
+function renderOfferHandoff(handoff) {
+  document.getElementById('buildLocked').style.display = 'none';
+  document.getElementById('buildReady').style.display = 'block';
+
+  const bonusList = (handoff.bonuses || []).map(b =>
+    `<li><strong>${esc(b.title)}</strong> — ${esc(b.description)}</li>`
+  ).join('');
+
+  const vsList = (handoff.valueStack || []).map(v =>
+    `<li><strong>${esc(v.bonusName)}</strong> — solves: ${esc(v.objectionItSolves)}</li>`
+  ).join('');
+
+  document.getElementById('offerHandoffContent').innerHTML = `
+    <div class="handoff-field">
+      <div class="handoff-field-label">Product Name</div>
+      <div class="handoff-field-value" style="font-size:20px;font-weight:700;color:var(--text)">${esc(handoff.productName)}</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Tagline</div>
+      <div class="handoff-field-value" style="font-style:italic">"${esc(handoff.tagline)}"</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Who This Is For</div>
+      <div class="handoff-field-value">${esc(handoff.targetAudience)}</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">The Core Promise</div>
+      <div class="handoff-field-value">${esc(handoff.corePromise)}</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">The One-Liner Pitch</div>
+      <div class="handoff-field-value" style="font-style:italic;color:var(--text)">"${esc(handoff.oneLiner)}"</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">What's Included</div>
+      <ul class="handoff-list">${(handoff.coreProduct?.structure||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Value Stack (${(handoff.valueStack||[]).length} items)</div>
+      <ul class="handoff-list">${vsList}</ul>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Audience Language</div>
+      <div class="handoff-field-value mono">${esc(handoff.audienceLanguage.slice(0,300))}...</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Tone Guide</div>
+      <div class="handoff-field-value mono">${esc(handoff.toneGuide.slice(0,200))}...</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Price</div>
+      <div class="handoff-field-value">${esc(handoff.suggestedPrice)}</div>
+    </div>
+    <div class="handoff-field">
+      <div class="handoff-field-label">Guarantee</div>
+      <div class="handoff-field-value">${esc(handoff.guarantee)}</div>
+    </div>
+  `;
+}
