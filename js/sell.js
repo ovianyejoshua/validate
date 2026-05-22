@@ -77,7 +77,7 @@ function startSellLog(logId, steps, interval) {
   return intv;
 }
 
-// Sliced context builders for each Sell stage
+// Smart context builders for each Sell stage
 function sellContextStrategy() {
   // Sales strategy: behaviour + thinking + signals + implications
   const aiPart = audienceIntel ? `
@@ -185,7 +185,7 @@ async function runSalesStrategy() {
   document.getElementById('ss1Loading').style.display = 'block';
   const intv = startSellLog('ss1Log', SS1_STEPS);
   try {
-    const text = await callClaude(SS1_SYSTEM, [{ role: 'user', content: sellContext() + '\n\nGenerate the complete sales strategy now.' }], false, 5000, OPUS);
+    const text = await callClaude(SS1_SYSTEM + CONCISE, [{ role: 'user', content: sellContextStrategy() + '\n\nGenerate the complete sales strategy now.' }], false, 5000, OPUS);
     clearInterval(intv);
     salesStrategy = text;
     document.getElementById('ss1Output').textContent = text;
@@ -255,9 +255,9 @@ async function runSalesPage() {
   document.getElementById('ss2Btn').disabled = true;
   document.getElementById('ss2Loading').style.display = 'block';
   const intv = startSellLog('ss2Log', SS2_STEPS);
-  const context = sellContext() + '\n\nSALES STRATEGY:\n' + (salesStrategy || '');
+  const context = sellContextSalesPage() + '\n\nSALES STRATEGY:\n' + (salesStrategy || '');
   try {
-    const text = await callClaude(SS2_SYSTEM, [{ role: 'user', content: context + '\n\nWrite the complete sales page now.' }], false, 4000, SONNET);
+    const text = await callClaude(SS2_SYSTEM, [{ role: 'user', content: context + '\n\nWrite the complete sales page now.' }], false, 6000, SONNET);
     clearInterval(intv);
     salesPage = text;
     document.getElementById('ss2Output').textContent = text;
@@ -269,6 +269,72 @@ async function runSalesPage() {
     clearInterval(intv);
     document.getElementById('ss2Loading').style.display = 'none';
     document.getElementById('ss2Btn').disabled = false;
+    alert('Error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════
+// SELL STAGE 3 — AD INTELLIGENCE RESEARCH
+// ══════════════════════════════════════
+const SS3_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start researching until you have reviewed everything.
+
+You are an expert paid media analyst, creative strategist and market intelligence researcher with deep expertise in extracting actionable advertising intelligence from publicly visible ad platforms. You have been given the refined offer, audience intelligence map and sales strategy.
+
+You are not looking for ads that exist. You are looking for CONVERGENCE — the same angles, hooks, formats and creative approaches appearing independently across multiple different advertisers. Convergence is proof the market has validated something.
+
+RESEARCH SCOPE: Search Facebook Ad Library and publicly visible ad content using multiple query variations — product type, pain point, audience description, transformation promised. Cast wide, narrow ruthlessly.
+
+EXTRACTION 1 — ANGLE CONVERGENCE: For each angle: state it precisely, how many advertisers use it independently, longevity, exact language used, emotional trigger, why it works for this audience, convergence strength (high=5+ advertisers, medium=3-4, low=1-2). Rank by convergence strength.
+
+EXTRACTION 2 — HOOK PATTERN CONVERGENCE: For each hook pattern: describe precisely, specific examples from real ads in italics, how many advertisers use it, what stops this audience, emotional state in first 3 seconds, convergence strength, hook length. Note which appear in longest running ads.
+
+EXTRACTION 3 — LANGUAGE AND VOCABULARY CONVERGENCE: Exact words and phrases appearing repeatedly. Power words, verbatim repetitions, CTA language, what successful advertisers conspicuously avoid. Note whether language already appears in audience intelligence.
+
+EXTRACTION 4 — EMOTIONAL TRIGGER CONVERGENCE: Specific emotion triggered, how activated, how many advertisers use it, when in ad it appears, connection to audience intelligence emotional state, convergence strength, early or late.
+
+EXTRACTION 5 — CREATIVE FORMAT CONVERGENCE: Dominant format with proportions. Video: style, length, opening, captions, production quality, pacing. Static image: image vs text ratio, what depicted, testimonials, color patterns, text overlay. Text only: length, structure, opening line, line breaks, emoji. End with: strongest format, strongest longevity signal, format to test first, what winning creative looks and feels like.
+
+EXTRACTION 6 — OFFER AND POSITIONING CONVERGENCE: How offers framed, primary value proposition, price handling, urgency mechanisms, proof elements, CTA framing, convergence strength.
+
+EXTRACTION 7 — GAP INTELLIGENCE: Angles no advertiser uses despite audience intelligence suggesting resonance. Missing emotional triggers. Ignored segments. Absent formats that work in adjacent niches. Language from audience intelligence not reflected in any ad. For each gap: what is missing, why it likely works, risk, whether to test alongside proven angles or after.
+
+SYNTHESIS: Single strongest validated angle with evidence. Single strongest hook with evidence. Single strongest format. Language that must appear. Emotional triggers and order. Three most important gaps. What a market validated winning ad looks like from first impression to CTA — described completely.
+
+INTELLIGENCE CONFIDENCE ASSESSMENT: How many advertisers found, longevity of longest running ads, where intelligence is strongest, where thinnest, what only real testing reveals. If few advertisers found say so clearly.
+
+Present with clear headers, bullet points. Quote ads in italics. End with one paragraph: what winning advertising looks like in this niche based entirely on what the market has already validated.`;
+
+const SS3_STEPS = [
+  'Searching Facebook Ad Library for this niche...',
+  'Finding advertisers running long term campaigns...',
+  'Identifying angle convergence across advertisers...',
+  'Extracting hook patterns from top performers...',
+  'Analysing creative format distribution...',
+  'Mapping language and vocabulary patterns...',
+  'Identifying emotional trigger convergence...',
+  'Extracting gap intelligence...',
+  'Synthesising complete market intelligence picture...',
+];
+
+async function runAdIntelligence() {
+  document.getElementById('ss3Btn').disabled = true;
+  document.getElementById('ss3Loading').style.display = 'block';
+  const intv = startSellLog('ss3Log', SS3_STEPS, 3800);
+  const aiPart = audienceIntel ? '\n\nAUDIENCE INTELLIGENCE:\n' + aiSlice('language','emotional','behaviour','implications','summary') : '';
+  const context = baseContext() + aiPart + '\n\nSALES STRATEGY:\n' + (salesStrategy || '(Not yet generated)');
+  try {
+    const text = await callClaude(SS3_SYSTEM + CONCISE, [{ role: 'user', content: context + '\n\nResearch active advertisers in this niche and produce the complete ad intelligence report now.' }], true, 6000, OPUS);
+    clearInterval(intv);
+    adIntelligence = text;
+    document.getElementById('ss3Output').textContent = text;
+    document.getElementById('ss3Result').style.display = 'block';
+    document.getElementById('ss3Loading').style.display = 'none';
+    document.getElementById('ss3Btn').style.display = 'none';
+    if (currentId) await dbUpdate(currentId, { ad_intelligence: text });
+  } catch(e) {
+    clearInterval(intv);
+    document.getElementById('ss3Loading').style.display = 'none';
+    document.getElementById('ss3Btn').disabled = false;
     alert('Error: ' + e.message);
   }
 }
@@ -324,79 +390,13 @@ const SS_AV_STEPS = [
   'Assessing intelligence integration...',
 ];
 
-// ══════════════════════════════════════
-// SELL STAGE 3 — AD INTELLIGENCE RESEARCH
-// ══════════════════════════════════════
-const SS3_SYSTEM = `Before you begin, read all the following inputs carefully and completely. Do not start researching until you have reviewed everything.
-
-You are an expert paid media analyst, creative strategist and market intelligence researcher with deep expertise in extracting actionable advertising intelligence from publicly visible ad platforms. You have been given the refined offer, audience intelligence map and sales strategy.
-
-You are not looking for ads that exist. You are looking for CONVERGENCE — the same angles, hooks, formats and creative approaches appearing independently across multiple different advertisers. Convergence is proof the market has validated something.
-
-RESEARCH SCOPE: Search Facebook Ad Library and publicly visible ad content using multiple query variations — product type, pain point, audience description, transformation promised. Cast wide, narrow ruthlessly.
-
-EXTRACTION 1 — ANGLE CONVERGENCE: For each angle: state it precisely, how many advertisers use it independently, longevity, exact language used, emotional trigger, why it works for this audience, convergence strength (high=5+ advertisers, medium=3-4, low=1-2). Rank by convergence strength.
-
-EXTRACTION 2 — HOOK PATTERN CONVERGENCE: For each hook pattern: describe precisely, specific examples from real ads in italics, how many advertisers use it, what stops this audience, emotional state in first 3 seconds, convergence strength, hook length. Note which appear in longest running ads.
-
-EXTRACTION 3 — LANGUAGE AND VOCABULARY CONVERGENCE: Exact words and phrases appearing repeatedly. Power words, verbatim repetitions, CTA language, what successful advertisers conspicuously avoid. Note whether language already appears in audience intelligence.
-
-EXTRACTION 4 — EMOTIONAL TRIGGER CONVERGENCE: Specific emotion triggered, how activated, how many advertisers use it, when in ad it appears, connection to audience intelligence emotional state, convergence strength, early or late.
-
-EXTRACTION 5 — CREATIVE FORMAT CONVERGENCE: Dominant format with proportions. Video: style, length, opening, captions, production quality, pacing. Static image: image vs text ratio, what depicted, testimonials, color patterns, text overlay. Text only: length, structure, opening line, line breaks, emoji. End with: strongest format, strongest longevity signal, format to test first, what winning creative looks and feels like.
-
-EXTRACTION 6 — OFFER AND POSITIONING CONVERGENCE: How offers framed, primary value proposition, price handling, urgency mechanisms, proof elements, CTA framing, convergence strength.
-
-EXTRACTION 7 — GAP INTELLIGENCE: Angles no advertiser uses despite audience intelligence suggesting resonance. Missing emotional triggers. Ignored segments. Absent formats that work in adjacent niches. Language from audience intelligence not reflected in any ad. For each gap: what is missing, why it likely works, risk, whether to test alongside proven angles or after.
-
-SYNTHESIS: Single strongest validated angle with evidence. Single strongest hook with evidence. Single strongest format. Language that must appear. Emotional triggers and order. Three most important gaps. What a market validated winning ad looks like from first impression to CTA — described completely.
-
-INTELLIGENCE CONFIDENCE ASSESSMENT: How many advertisers found, longevity of longest running ads, where intelligence is strongest, where thinnest, what only real testing reveals. If few advertisers found say so clearly.
-
-Present with clear headers, bullet points. Quote ads in italics. End with one paragraph: what winning advertising looks like in this niche based entirely on what the market has already validated.`;
-
-const SS3_STEPS = [
-  'Searching Facebook Ad Library for this niche...',
-  'Finding advertisers running long term campaigns...',
-  'Identifying angle convergence across advertisers...',
-  'Extracting hook patterns from top performers...',
-  'Analysing creative format distribution...',
-  'Mapping language and vocabulary patterns...',
-  'Identifying emotional trigger convergence...',
-  'Extracting gap intelligence...',
-  'Synthesising complete market intelligence picture...',
-];
-
-async function runAdIntelligence() {
-  document.getElementById('ss3Btn').disabled = true;
-  document.getElementById('ss3Loading').style.display = 'block';
-  const intv = startSellLog('ss3Log', SS3_STEPS, 3800);
-  const aiPart = audienceIntel ? '\n\nAUDIENCE INTELLIGENCE:\n' + aiSlice('language','emotional','behaviour','implications','summary') : '';
-  const context = baseContext() + aiPart + '\n\nSALES STRATEGY:\n' + (salesStrategy || '(Not yet generated)');
-  try {
-    const text = await callClaude(SS3_SYSTEM, [{ role: 'user', content: context + '\n\nResearch active advertisers in this niche and produce the complete ad intelligence report now.' }], true, 6000, OPUS);
-    clearInterval(intv);
-    adIntelligence = text;
-    document.getElementById('ss3Output').textContent = text;
-    document.getElementById('ss3Result').style.display = 'block';
-    document.getElementById('ss3Loading').style.display = 'none';
-    document.getElementById('ss3Btn').style.display = 'none';
-    if (currentId) await dbUpdate(currentId, { ad_intelligence: text });
-  } catch(e) {
-    clearInterval(intv);
-    document.getElementById('ss3Loading').style.display = 'none';
-    document.getElementById('ss3Btn').disabled = false;
-    alert('Error: ' + e.message);
-  }
-}
-
 async function runAdVariations() {
   document.getElementById('ss4Btn').disabled = true;
   document.getElementById('ss4Loading').style.display = 'block';
   const intv = startSellLog('ss4Log', SS_AV_STEPS);
-  const context = sellContext() + '\n\nSALES STRATEGY:\n' + (salesStrategy||'') + '\n\nSALES PAGE:\n' + (salesPage||'');
+  const context = sellContextAds() + '\n\nSALES STRATEGY:\n' + (salesStrategy||'') + '\n\nSALES PAGE:\n' + (salesPage||'');
   try {
-    const text = await callClaude(SS_AV_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete ad variation arsenal now.' }], false, 6000, SONNET);
+    const text = await callClaude(SS_AV_SYSTEM, [{ role: 'user', content: context + '\n\nGenerate the complete ad variation arsenal now.' }], false, 8000, SONNET);
     clearInterval(intv);
     adVariations = text;
     document.getElementById('ss4Output').textContent = text;
@@ -537,7 +537,7 @@ async function runBackendArchitecture() {
   document.getElementById('ss6Btn').disabled = true;
   document.getElementById('ss6Loading').style.display = 'block';
   const intv = startSellLog('ss6Log', SS6_STEPS);
-  const context = sellContext()
+  const context = sellContextBackend()
     + '\n\nSALES STRATEGY:\n' + (salesStrategy||'')
     + (cumulativeLearningLog ? '\n\nCUMULATIVE LEARNING LOG FROM AD ITERATIONS:\n' + cumulativeLearningLog : '');
   try {
@@ -568,13 +568,6 @@ function unlockSell() {
 }
 
 function restoreSellState(entry) {
-  if (entry.ad_intelligence) {
-    adIntelligence = entry.ad_intelligence;
-    document.getElementById('ss3Output').textContent = adIntelligence;
-    document.getElementById('ss3Result').style.display = 'block';
-    document.getElementById('ss3Btn').style.display = 'none';
-    markSellStageDone(3); unlockSellStage(4);
-  }
   if (entry.sales_strategy) {
     salesStrategy = entry.sales_strategy;
     document.getElementById('ss1Output').textContent = salesStrategy;
@@ -588,6 +581,13 @@ function restoreSellState(entry) {
     document.getElementById('ss2Result').style.display = 'block';
     document.getElementById('ss2Btn').style.display = 'none';
     markSellStageDone(2); unlockSellStage(3);
+  }
+  if (entry.ad_intelligence) {
+    adIntelligence = entry.ad_intelligence;
+    document.getElementById('ss3Output').textContent = adIntelligence;
+    document.getElementById('ss3Result').style.display = 'block';
+    document.getElementById('ss3Btn').style.display = 'none';
+    markSellStageDone(3); unlockSellStage(4);
   }
   if (entry.ad_variations) {
     adVariations = entry.ad_variations;
