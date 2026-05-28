@@ -39,7 +39,7 @@ async function callClaude(systemPrompt, messages, useSearch, maxTokens, model) {
   while (!finalText && turns < 15) {
     turns++;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 55000);
+    const timer = setTimeout(() => controller.abort(), 120000);
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
