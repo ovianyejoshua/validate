@@ -51,7 +51,7 @@ window.addEventListener('load', () => {
 // TABS
 // ══════════════════════════════════════
 function switchTab(name) {
-  const names = ['validate','strategist','markettest','history','build','sell','settings'];
+  const names = ['validate','strategist','markettest','build','sell','history','settings'];
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', names[i] === name);
   });
