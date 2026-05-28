@@ -86,14 +86,17 @@ async function loadEntry(id) {
   // Restore sell state
   if (entry.build_complete) { unlockSell(); restoreSellState(entry); }
 
-  // Restore Build tab if offer was finalised
-  if (finalisedOffer) {
-    const buildTab = document.getElementById('tab-build');
-    if (buildTab) { buildTab.disabled = false; buildTab.style.opacity = '1'; buildTab.style.cursor = 'pointer'; }
-    renderOfferHandoff(finalisedOffer);
-    document.getElementById('finaliseDone').style.display = 'flex';
-    document.getElementById('finaliseBtn').style.display = 'none';
-  }
+  // Restore Build tab and Market Test tab if offer was finalised
+if (finalisedOffer) {
+  const buildTab = document.getElementById('tab-build');
+  if (buildTab) { buildTab.disabled = false; buildTab.style.opacity = '1'; buildTab.style.cursor = 'pointer'; }
+  renderOfferHandoff(finalisedOffer);
+  document.getElementById('finaliseDone').style.display = 'flex';
+  document.getElementById('finaliseBtn').style.display = 'none';
+  unlockMarketTest();
+}
+// Restore market test state
+restoreMarketTestState(entry);
 
   // Restore validate tab
   document.getElementById('ideaInput').value = currentIdea;
@@ -139,7 +142,15 @@ async function deleteEntry(id) {
     refineHistory = []; objections = []; valueStack = []; finalOffer = null; finalisedOffer = null; audienceIntel = null;
   blueprint = null; approvedBlueprint = null; chapters = []; currentChapterIndex = 0; buildStagesUnlocked = [1];
   salesStrategy = null; salesPage = null; adIntelligence = null; adVariations = null; adIterations = []; cumulativeLearningLog = null; backendArchitecture = null; sellStagesUnlocked = [1];
+  marketTestPage = null; marketTestAd = null; marketTestResults = null; marketTestPassed = false; marketTestStagesUnlocked = [1];
   const st = document.getElementById('tab-sell'); if(st){st.disabled=true;st.style.opacity='.35';st.style.cursor='not-allowed';}
+  const mt = document.getElementById('tab-markettest'); if(mt){mt.disabled=true;mt.style.opacity='.35';mt.style.cursor='not-allowed';}
+  document.getElementById('mtLockedMsg').style.display='block';
+  document.getElementById('mtContent').style.display='none';
+  document.getElementById('mtSkipConfirm').style.display='none';
+  document.getElementById('mtBuildUnlockMsg').style.display='none';
+  document.getElementById('mtValidatedBanner').style.display='none';
+  document.getElementById('mtNotValidatedActions').style.display='none';
   document.getElementById('sellLocked').style.display='block';
   document.getElementById('sellReady').style.display='none';
   const bt = document.getElementById('tab-build'); if(bt){bt.disabled=true;bt.style.opacity='.35';bt.style.cursor='not-allowed';}
