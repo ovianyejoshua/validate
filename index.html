@@ -89,6 +89,7 @@
   <button class="tab" onclick="switchTab('source')">Source Ideas</button>
   <button class="tab active" onclick="switchTab('validate')">Validate</button>
   <button class="tab" onclick="switchTab('strategist')">Strategist</button>
+  <button class="tab" id="tab-markettest" onclick="switchTab('markettest')" style="opacity:.35;cursor:not-allowed" disabled>Market Test</button>
   <button class="tab" onclick="switchTab('history')">History</button>
   <button class="tab" id="tab-build" onclick="switchTab('build')" style="opacity:.35;cursor:not-allowed" disabled>Build</button>
   <button class="tab" id="tab-sell" onclick="switchTab('sell')" style="opacity:.35;cursor:not-allowed" disabled>Sell</button>
@@ -223,7 +224,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- ═══ STRATEGIST PANEL ═══ -->
@@ -346,7 +346,131 @@
 </div>
 
 
-<!-- ═══ BUILD PANEL ═══ -->
+<!-- ═══ MARKET TEST PANEL ═══ -->
+<div class="panel" id="panel-markettest">
+  <div id="mtLockedMsg" class="strat-empty">
+    <p class="strat-empty-text">Finalise your offer in the Strategist first.<br>Then come here to test it with real money before building.</p>
+  </div>
+  <div id="mtContent" style="display:none">
+    <div class="eyebrow">Market Test</div>
+    <h2 class="section-title" style="font-size:clamp(28px,4vw,44px)">$50. 48 hours.<br><em>Does the market agree?</em></h2>
+    <p class="section-sub" style="margin-bottom:8px">Before spending weeks building, spend $50 to find out if real people will actually pay for your offer. Three steps: pre-order page, one test ad, results analysis.</p>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:32px">Optional — you can skip this and go straight to Build. But this test has saved people from building things nobody wanted.</p>
+
+    <div style="margin-bottom:28px;display:flex;gap:12px;align-items:center">
+      <button class="btn-ghost" onclick="skipMarketTest()">Skip Market Test — Go to Build →</button>
+    </div>
+    <div id="mtSkipConfirm" style="display:none;margin-bottom:24px;padding:16px 20px;border:1px solid var(--border);border-radius:4px;background:var(--surface)">
+      <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:12px">Are you sure? You can always come back and run the test later.</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn-primary" onclick="confirmSkipMarketTest()">Yes, skip and unlock Build</button>
+        <button class="btn-ghost" onclick="document.getElementById('mtSkipConfirm').style.display='none'">Cancel</button>
+      </div>
+    </div>
+
+    <div id="mtBuildUnlockMsg" style="display:none;margin-bottom:24px"></div>
+
+    <div class="stages">
+
+      <!-- Market Test Stage 1: Pre-Order Page -->
+      <div class="stage" id="mstage1">
+        <div class="stage-header" onclick="toggleMarketStage(1)">
+          <div class="stage-header-left"><span class="stage-num">01</span><span class="stage-name">Pre-Order Landing Page</span></div>
+          <span class="stage-status active" id="mstage1Status">Ready</span>
+        </div>
+        <div class="stage-body open" id="mstage1Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">A simple 7-element pre-order page built from your offer and audience intelligence. Not a full sales page — just enough to convert a stranger into a paying pre-order customer. The product does not exist yet. The page is honest about that.</p>
+          <div class="loading" id="mt1Loading" style="display:none">
+            <div class="loading-title">Writing pre-order landing page <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="mt1Log"></div>
+          </div>
+          <div id="mt1Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Pre-Order Landing Page</span><button class="sell-stage-complete-btn" onclick="copySellOutput('mt1Output')">Copy</button></div>
+              <div class="sell-output-body" id="mt1Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Review all seven elements. Set up this page on Gumroad, Stripe, or any checkout tool. When ready, approve to generate the test ad.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveMT1()">Page Ready — Generate Test Ad →</button>
+                <button class="btn-ghost" onclick="document.getElementById('mt1Result').style.display='none';document.getElementById('mt1Btn').style.display='block';document.getElementById('mt1Btn').disabled=false;">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="mt1Btn" onclick="generatePreOrderPage()">Generate Pre-Order Page →</button>
+        </div>
+      </div>
+
+      <!-- Market Test Stage 2: Test Ad -->
+      <div class="stage" id="mstage2">
+        <div class="stage-header" onclick="toggleMarketStage(2)">
+          <div class="stage-header-left"><span class="stage-num">02</span><span class="stage-name">Test Ad</span></div>
+          <span class="stage-status locked" id="mstage2Status">Locked</span>
+        </div>
+        <div class="stage-body" id="mstage2Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">One single test ad built from the highest intensity pain angle in your audience intelligence. Not variations — one ad, one hook, one job: earn the click from the right person. Run it on Facebook or Instagram with $50 over 48 hours.</p>
+          <div class="loading" id="mt2Loading" style="display:none">
+            <div class="loading-title">Writing test ad <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="mt2Log"></div>
+          </div>
+          <div id="mt2Result" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Test Ad</span><button class="sell-stage-complete-btn" onclick="copySellOutput('mt2Output')">Copy</button></div>
+              <div class="sell-output-body" id="mt2Output"></div>
+            </div>
+            <div class="sell-approve-box">
+              <p>Set up the ad exactly as written. Purchase objective. Broad targeting. Tier 1 countries only — US, UK, CA, AU. Feeds only. $15-25 per day. Run for exactly 48 hours. Do not read results early.</p>
+              <div class="sell-approve-row">
+                <button class="btn-finalise" onclick="approveMT2()">Ad Running — Analyse Results After 48 Hours →</button>
+                <button class="btn-ghost" onclick="document.getElementById('mt2Result').style.display='none';document.getElementById('mt2Btn').style.display='block';document.getElementById('mt2Btn').disabled=false;">Regenerate</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="mt2Btn" onclick="generateTestAd()" style="display:none">Generate Test Ad →</button>
+        </div>
+      </div>
+
+      <!-- Market Test Stage 3: Results Analysis -->
+      <div class="stage" id="mstage3">
+        <div class="stage-header" onclick="toggleMarketStage(3)">
+          <div class="stage-header-left"><span class="stage-num">03</span><span class="stage-name">Results Analysis</span></div>
+          <span class="stage-status locked" id="mstage3Status">Locked</span>
+        </div>
+        <div class="stage-body" id="mstage3Body">
+          <p class="body-text" style="font-size:14px;margin-bottom:20px">48 hours done. Bring back your numbers — purchases, CTR All, CTR Link, Add to Carts. Paste raw metrics, describe what happened, or both. The tool reads the data precisely and tells you exactly what it means and exactly what to do next.</p>
+          <div class="field-label" style="margin-bottom:8px">Your Results</div>
+          <textarea class="iteration-input" id="mtResultsInput" placeholder="E.g. Purchase objective, broad targeting, US/UK/CA/AU, feeds only, $20/day for 48 hours. Results: 0 purchases, CTR All 9.2%, CTR Link 2.8%, 0 add to carts, reach 4,200, impressions 6,800..."></textarea>
+          <div class="loading" id="mt3Loading" style="display:none">
+            <div class="loading-title">Analysing your results <span class="pulse-dot"></span></div>
+            <div class="progress-log" id="mt3Log"></div>
+          </div>
+          <div id="mt3Output" style="display:none">
+            <div class="sell-output-box">
+              <div class="sell-output-header"><span class="sell-output-title">Results Analysis</span><button class="sell-stage-complete-btn" onclick="copySellOutput('mt3OutputText')">Copy</button></div>
+              <div class="sell-output-body" id="mt3OutputText"></div>
+            </div>
+            <div id="mtValidatedBanner" style="display:none;margin-top:20px;padding:20px 24px;border:1px solid rgba(0,217,139,.4);border-radius:4px;background:rgba(0,217,139,.06)">
+              <div style="font-family:var(--font);font-size:18px;font-weight:700;color:var(--green);margin-bottom:8px">✓ Market Validated</div>
+              <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:16px">Real people paid for this before it existed. Build is now unlocked. Proceed with confidence.</p>
+              <button class="btn-finalise" onclick="switchTab('build')">Go to Build →</button>
+            </div>
+            <div id="mtNotValidatedActions" style="display:none;margin-top:20px;padding:20px 24px;border:1px solid var(--border);border-radius:4px">
+              <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:16px">Follow the exact next instructions above. When you have new data, run another analysis.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn-primary" onclick="runAnotherMT()">Run Another Analysis →</button>
+                <button class="btn-ghost" onclick="confirmSkipMarketTest()">Skip and unlock Build anyway</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" id="mt3Btn" onclick="analyzeResults()">Analyse Results →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+  
+  <!-- ═══ BUILD PANEL ═══ -->
 <div class="panel" id="panel-build">
   <div id="buildLocked" class="strat-empty">
     <p class="strat-empty-text">Complete the Strategist and finalise your offer<br>before moving to Build.</p>
@@ -567,7 +691,7 @@
           <div class="stage-header-left"><span class="stage-num">04</span><span class="stage-name">Ad Variations</span></div>
           <span class="stage-status locked" id="sstage4Status">Locked</span>
         </div>
-        <div class="stage-body" id="sstage4Body"
+        <div class="stage-body" id="sstage4Body">
           <p class="body-text" style="font-size:14px;margin-bottom:20px">Up to 200 ad variations built entirely from audience language and the sales strategy. Format recommendation derived from where this audience lives. Angle bank extracted from real research. Variations clustered by angle, ranked by effectiveness and production effort. Testing roadmap included.</p>
           <div class="loading" id="ss4Loading" style="display:none">
             <div class="loading-title">Generating ad variations <span class="pulse-dot"></span></div>
@@ -722,6 +846,7 @@
 <script src="js/source.js"></script>
 <script src="js/validate.js"></script>
 <script src="js/strategist.js"></script>
+<script src="js/markettest.js"></script>
 <script src="js/build.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/sell.js"></script>
