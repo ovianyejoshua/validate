@@ -23,7 +23,7 @@ async function dbLoad(id) {
 async function dbLoadAll() {
   if (!db) return [];
   try {
-    const { data, error } = await db.from('validations').select('id,idea,report,created_at,refine_history,objections,value_stack,final_offer,audience_intel,finalised_offer,blueprint,approved_blueprint,chapters,build_complete,sales_strategy,sales_page,ad_intelligence,ad_variations,ad_iterations,cumulative_learning_log,backend_architecture').order('created_at', { ascending: false }).limit(50);
+    const { data, error } = await db.from('validations').select('id,idea,report,created_at,refine_history,objections,value_stack,final_offer,audience_intel,finalised_offer,blueprint,approved_blueprint,chapters,build_complete,sales_strategy,sales_page,ad_intelligence,ad_variations,ad_iterations,cumulative_learning_log,backend_architecture,market_test_page,market_test_ad,market_test_results,market_test_passed').order('created_at', { ascending: false }).limit(50);
     if (error) { console.error('DB loadAll error:', error); return []; }
     return data || [];
   } catch(e) { console.error('DB loadAll exception:', e); return []; }
