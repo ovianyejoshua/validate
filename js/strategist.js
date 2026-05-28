@@ -421,13 +421,14 @@ async function finaliseOffer() {
   // Save to Supabase
   if (currentId) await dbUpdate(currentId, { finalised_offer: handoff });
 
-  // Unlock Build tab
+  // Unlock Build tab and Market test simultaneously
   const buildTab = document.getElementById('tab-build');
   if (buildTab) {
     buildTab.disabled = false;
     buildTab.style.opacity = '1';
     buildTab.style.cursor = 'pointer';
   }
+  unlockMarketTest();
 
   // Render handoff in Build panel
   renderOfferHandoff(handoff);
