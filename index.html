@@ -86,7 +86,6 @@
 </div>
 
 <nav class="tabs">
-  <button class="tab" onclick="switchTab('source')">Source Ideas</button>
   <button class="tab active" onclick="switchTab('validate')">Validate</button>
   <button class="tab" onclick="switchTab('strategist')">Strategist</button>
   <button class="tab" id="tab-markettest" onclick="switchTab('markettest')" style="opacity:.35;cursor:not-allowed" disabled>Market Test</button>
@@ -95,49 +94,6 @@
   <button class="tab" id="tab-sell" onclick="switchTab('sell')" style="opacity:.35;cursor:not-allowed" disabled>Sell</button>
   <button class="tab" onclick="switchTab('settings')">Settings</button>
 </nav>
-
-<!-- ═══ SOURCE IDEAS PANEL ═══ -->
-<div class="panel" id="panel-source">
-  <div class="eyebrow">Idea Sourcing</div>
-  <h1 class="hero-headline">Find the idea<br><em>worth building</em></h1>
-  <p class="hero-sub">No idea yet? The tool hunts for you. It searches Reddit, YouTube, Amazon reviews, and forums for underserved audiences with real pain and money already moving — then surfaces the strongest gem candidates ranked by evidence.</p>
-
-  <div class="source-method-grid">
-    <div class="source-method-card" id="methodCard1" onclick="selectMethod(1)">
-      <div class="source-method-title">Hunt within a category</div>
-      <div class="source-method-desc">Give the tool a space to search — parenting, fitness, finance, relationships, career. It finds the underserved niche within it.</div>
-    </div>
-    <div class="source-method-card" id="methodCard2" onclick="selectMethod(2)">
-      <div class="source-method-title">Full autonomy</div>
-      <div class="source-method-desc">No direction. The tool follows the strongest signals it finds anywhere on the internet. Where pain is loudest and solutions are thinnest.</div>
-    </div>
-  </div>
-
-  <input type="text" class="source-category-input" id="categoryInput" placeholder="e.g. parenting, personal finance, fitness after 40, remote work...">
-
-  <div style="display:flex;align-items:center;gap:12px">
-    <button class="btn-primary" id="sourceBtn" onclick="runIdeaSourcing()" disabled>Hunt for Ideas →</button>
-    <span id="sourceHint" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Select a method above to begin</span>
-  </div>
-
-  <div class="loading" id="sourceLoading" style="display:none;margin-top:32px">
-    <div class="loading-title">Hunting across the internet <span class="pulse-dot"></span></div>
-    <div class="progress-log" id="sourceLog"></div>
-  </div>
-
-  <div class="source-results" id="sourceResults">
-    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px">Ideas Ranked by Evidence Strength</div>
-    <div id="ideaCardsList"></div>
-    <div id="rankingTableWrap" style="display:none">
-      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:32px;margin-bottom:14px">Overall Ranking Summary</div>
-      <table class="source-ranking-table" id="rankingTable"></table>
-    </div>
-    <div class="hunting-notes" id="huntingNotes" style="display:none">
-      <div class="hunting-notes-title">Hunting Notes</div>
-      <div class="hunting-notes-body" id="huntingNotesBody"></div>
-    </div>
-  </div>
-</div>
 
 <!-- ═══ VALIDATE PANEL ═══ -->
 <div class="panel active" id="panel-validate">
@@ -843,8 +799,7 @@
 <script src="js/utils.js"></script>
 <script src="js/history.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/context.js"></script>
-<script src="js/source.js"></script>
+<script src="js/context.js"></script
 <script src="js/validate.js"></script>
 <script src="js/strategist.js"></script>
 <script src="js/markettest.js"></script>
