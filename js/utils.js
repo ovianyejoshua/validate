@@ -47,7 +47,6 @@ async function callClaudeStream(systemPrompt, messages, useSearch, maxTokens, mo
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC_KEY,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'interleaved-thinking-2025-05-14',
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
