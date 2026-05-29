@@ -271,7 +271,7 @@ Return ONLY raw JSON array, no markdown:
 ]` + CONCISE;
 
   try {
-    const text = await callClaude(Valueprompt, [{ role: 'user', content: 'Build the value stack.' }, false, 4000, SONNET]);
+    const text = await callClaude(Valueprompt, [{ role: 'user', content: 'Build the value stack.' }], false, 4000, SONNE);
     let clean = text.replace(/```json\s*/gi,'').replace(/```/g,'').trim();
     const s = clean.indexOf('['), e = clean.lastIndexOf(']');
     valueStack = JSON.parse(clean.slice(s, e+1));
